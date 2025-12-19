@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "infnet.SurveyQuestionnaire.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7065",
+      "launchBrowser": false
+    }
+  }
+}

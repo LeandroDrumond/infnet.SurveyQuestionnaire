@@ -1,0 +1,23 @@
+# ?? NEVER COMMIT THESE FILES - SECURITY CRITICAL
+
+# User Secrets (already protected by default .gitignore)
+**/appsettings.Local.json
+**/secrets.json
+**/*.secret.*
+
+# Connection Strings (additional protection)
+**/appsettings.*.ConnectionStrings.json
+
+# Environment files with secrets
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Azure credentials
+**/*.publishsettings
+**/*.azurePubxml
+
+# Backup files that might contain secrets
+**/*.backup
+**/*.bak
+**/*.orig
