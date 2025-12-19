@@ -23,33 +23,32 @@ public class QuestionnaireRepository : IQuestionnaireRepository
     public async Task<Questionnaire?> GetByIdWithQuestionsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Questionnaires
- .AsNoTracking()
-            .Include(q => q.Questions)
-      .ThenInclude(q => q.Options)
- .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
+                    .AsNoTracking()
+                    .Include(q => q.Questions)
+                    .ThenInclude(q => q.Options)
+                    .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Questionnaires
-         .OrderByDescending(q => q.CreatedAt)
-            .ToListAsync(cancellationToken);
+        return await _context.Questionnaires.OrderByDescending(q => q.CreatedAt)
+                                            .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetByCreatorIdAsync(Guid createdByUserId, CancellationToken cancellationToken = default)
     {
- return await _context.Questionnaires
-            .Where(q => q.CreatedByUserId == createdByUserId)
-            .OrderByDescending(q => q.CreatedAt)
-   .ToListAsync(cancellationToken);
+         return await _context.Questionnaires
+                    .Where(q => q.CreatedByUserId == createdByUserId)
+                    .OrderByDescending(q => q.CreatedAt)
+                    .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetPublishedAsync(CancellationToken cancellationToken = default)
     {
      return await _context.Questionnaires
-       .Where(q => q.Status == QuestionnaireStatus.Published)
-       .OrderByDescending(q => q.CreatedAt)
-    .ToListAsync(cancellationToken);
+                .Where(q => q.Status == QuestionnaireStatus.Published)
+                .OrderByDescending(q => q.CreatedAt)
+                .ToListAsync(cancellationToken);
     }
 
     public void Add(Questionnaire questionnaire)

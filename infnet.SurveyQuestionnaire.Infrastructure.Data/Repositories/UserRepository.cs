@@ -14,7 +14,6 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    // Métodos básicos (mantidos para compatibilidade)
     public async Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Users.FindAsync([id], cancellationToken);
@@ -23,8 +22,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalizedEmail = email.Trim().ToLowerInvariant();
-        return await _context.Users
-            .FirstOrDefaultAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
     }
 
     public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -39,8 +37,6 @@ public class UserRepository : IUserRepository
         var normalizedEmail = email.Trim().ToLowerInvariant();
         return await _context.Users.AnyAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
     }
-
-    // Comandos
     public void Add(User user)
     {
         _context.Users.Add(user);
@@ -50,7 +46,6 @@ public class UserRepository : IUserRepository
     {
         _context.Users.Update(user);
     }
-
     public void Remove(User user)
     {
         _context.Users.Remove(user);
