@@ -1,19 +1,19 @@
 # Survey Questionnaire API
 
-API para gerenciamento de question·rios e coleta de respostas, desenvolvida com .NET 9, Clean Architecture e Domain-Driven Design.
+API para gerenciamento de question√°rios e coleta de respostas, desenvolvida com .NET 9, Clean Architecture e Domain-Driven Design.
 
 ---
 
-## O que È?
+## O que √©?
 
-Sistema para criar question·rios, public·-los e coletar respostas de usu·rios.
+Sistema para criar question√°rios, public√°-los e coletar respostas de usu√°rios.
 
 **Principais funcionalidades:**
-- Administradores criam e gerenciam question·rios
-- Usu·rios p˙blicos respondem question·rios
-- Questıes abertas e de m˙ltipla escolha
-- Processamento assÌncrono de respostas (Azure Service Bus)
-- Cada usu·rio responde apenas uma vez por question·rio
+- Administradores criam e gerenciam question√°rios
+- Usu√°rios p√∫blicos respondem question√°rios
+- Quest√µes abertas e de m√∫ltipla escolha
+- Processamento ass√≠ncrono de respostas (Azure Service Bus)
+- Cada usu√°rio responde apenas uma vez por question√°rio
 
 ---
 
@@ -34,26 +34,26 @@ Projeto dividido em 5 camadas seguindo Clean Architecture:
 - EF Core, Repositories, Service Bus
 
 **Functions Layer**
-- Azure Functions para processamento assÌncrono
+- Azure Functions para processamento ass√≠ncrono
 
 **Por que esta arquitetura?**
-- Domain isolado (n„o depende de nada)
-- F·cil testar regras de negÛcio
-- F·cil trocar tecnologias (banco, mensageria)
+- Domain isolado (n√£o depende de nada)
+- F√°cil testar regras de neg√≥cio
+- F√°cil trocar tecnologias (banco, mensageria)
 
 ---
 
 ## Tecnologias
 
 - **.NET 9** - Framework
-- **C# 13** - Linguagem
+- **C#** - Linguagem
 - **EF Core** - ORM/Banco de dados
-- **SQL Server** - PersistÍncia
+- **SQL Server** - Persist√™ncia
 - **Azure Service Bus** - Fila de mensagens
-- **Azure Functions** - Processamento assÌncrono
-- **Swagger** - DocumentaÁ„o da API
+- **Azure Functions** - Processamento ass√≠ncrono
+- **Swagger** - Documenta√ß√£o da API
 - **AutoMapper** - Mapeamento de objetos
-- **FluentValidation** - ValidaÁıes
+- **FluentValidation** - Valida√ß√µes
 
 ---
 
@@ -69,7 +69,7 @@ Projeto dividido em 5 camadas seguindo Clean Architecture:
 
 ## Como Executar
 
-### PrÈ-requisitos
+### Pr√©-requisitos
 
 - .NET 9 SDK
 - SQL Server (LocalDB)
@@ -90,70 +90,70 @@ dotnet run
 
 Acesse: https://localhost:5001/swagger
 
-**ObservaÁ„o:** As configuraÁıes sensÌveis (Azure Service Bus) j· est„o no User Secrets e n„o precisam ser configuradas manualmente.
+**Observa√ß√£o:** As configura√ß√µes sens√≠veis (Azure Service Bus) j√° est√£o no User Secrets e n√£o precisam ser configuradas manualmente.
 
 ---
 
 ## Principais Endpoints
 
-**Usu·rios**
-- POST /api/users - Criar usu·rio
-- GET /api/users - Listar usu·rios
+**Usu√°rios**
+- POST /api/users - Criar usu√°rio
+- GET /api/users - Listar usu√°rios
 - GET /api/users/{id} - Buscar por ID
 
-**Question·rios**
+**Question√°rios**
 - POST /api/questionnaires - Criar (Admin)
 - GET /api/questionnaires - Listar todos
 - POST /api/questionnaires/{id}/publish - Publicar
-- POST /api/questionnaires/{id}/questions - Adicionar quest„o
+- POST /api/questionnaires/{id}/questions - Adicionar quest√£o
 
-**Submissıes**
-- POST /api/submissions - Responder question·rio (Public)
+**Submiss√µes**
+- POST /api/submissions - Responder question√°rio (Public)
 - GET /api/submissions/{id} - Buscar resposta
 - GET /api/submissions/questionnaire/{id}` - Listar respostas (Admin)
 
 ---
 
-## Padrıes Utilizados
+## Padr√µes Utilizados
 
-- **DDD (Domain-Driven Design)** - LÛgica de negÛcio no Domain
-- **Repository Pattern** - AbstraÁ„o de acesso a dados
-- **Unit of Work** - Gerenciamento de transaÁıes
-- **CQRS Simplificado** - SeparaÁ„o de leitura e escrita
-- **Dependency Injection** - Invers„o de controle
+- **DDD (Domain-Driven Design)** - L√≥gica de neg√≥cio no Domain
+- **Repository Pattern** - Abstra√ß√£o de acesso a dados
+- **Unit of Work** - Gerenciamento de transa√ß√µes
+- **CQRS Simplificado** - Separa√ß√£o de leitura e escrita
+- **Dependency Injection** - Invers√£o de controle
 
 ---
 
-## Fluxo de Submiss„o AssÌncrona
+## Fluxo de Submiss√£o Ass√≠ncrona
 
 Como funciona o processamento de respostas:
 
 1. Cliente envia POST /api/submissions
 2. API valida e cria Submission (status: Pending)
 3. API publica mensagem no Azure Service Bus
-4. API retorna 202 Accepted (n„o trava)
+4. API retorna 202 Accepted (n√£o trava)
 5. Azure Function processa a mensagem
 6. Function adiciona SubmissionItems no banco
 7. Function atualiza status para Completed ou Failed
 
 Vantagens:
-- API n„o trava esperando processamento
-- Escalabilidade autom·tica (Azure Functions)
-- Retry autom·tico em caso de falha
+- API n√£o trava esperando processamento
+- Escalabilidade autom√°tica (Azure Functions)
+- Retry autom√°tico em caso de falha
 
 ---
 
-## Decisıes TÈcnicas
+## Decis√µes T√©cnicas
 
-**Clean Architecture** - IndependÍncia e testabilidade
+**Clean Architecture** - Independ√™ncia e testabilidade
 
-**DDD** - Complexidade de negÛcio exige regras bem definidas
+**DDD** - Complexidade de neg√≥cio exige regras bem definidas
 
 **EF Core** - Produtividade + Migrations
 
-**Azure Service Bus** - Processamento assÌncrono confi·vel
+**Azure Service Bus** - Processamento ass√≠ncrono confi√°vel
 
-**Repository Pattern** - AbstraÁ„o + facilita testes
+**Repository Pattern** - Abstra√ß√£o + facilita testes
 
 ---
 
@@ -173,7 +173,7 @@ Vantagens:
 
 ---
 
-## ReferÍncias
+## Refer√™ncias
 
 - [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Domain-Driven Design](https://www.domainlanguage.com/ddd/)
