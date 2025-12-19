@@ -7,14 +7,13 @@ namespace infnet.SurveyQuestionnaire.Application.Interfaces;
 /// </summary>
 public interface ISubmissionService
 {
-    // ==================== Submission Operations ====================
-
+ 
     /// <summary>
     /// Cria uma nova submission e envia para processamento assíncrono
     /// </summary>
-/// <param name="request">Dados da submission</param>
+    /// <param name="request">Dados da submission</param>
     /// <param name="userId">ID do usuário respondente (deve ser usuário público)</param>
-/// <returns>Submission criada com status Pending</returns>
+    /// <returns>Submission criada com status Pending</returns>
     Task<SubmissionResponse> CreateSubmissionAsync(CreateSubmissionRequest request, Guid userId);
 
     /// <summary>
@@ -49,10 +48,8 @@ public interface ISubmissionService
     /// <returns>Número de submissions</returns>
     Task<int> CountQuestionnaireSubmissionsAsync(Guid questionnaireId, Guid userId);
 
-    // ==================== Processing Operations (usado pela Azure Function) ====================
-
     /// <summary>
-    /// Processa uma submission (usado pela Azure Function)
+    /// Processa uma submission
     /// </summary>
     /// <param name="message">Mensagem do Service Bus</param>
     Task ProcessSubmissionAsync(SubmissionMessage message);
