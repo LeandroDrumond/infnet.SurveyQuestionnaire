@@ -67,7 +67,6 @@ public class AddQuestionRequestValidator : AbstractValidator<AddQuestionRequest>
           .Length(3, 500)
 .WithMessage("Question text must be between 3 and 500 characters");
 
-   // Se for múltipla escolha, deve ter pelo menos 2 opções
         RuleFor(x => x.Options)
             .NotNull()
 .When(x => x.IsMultipleChoice)

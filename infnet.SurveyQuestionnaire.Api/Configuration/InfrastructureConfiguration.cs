@@ -18,38 +18,25 @@ public static class InfrastructureConfiguration
     {
       services.AddDbContext<SurveyQuestionnaireDbContext>(options =>
       {
-    options.UseSqlServer( configuration.GetConnectionString("DefaultConnection"),
-     sqlOptions =>
-         {
-   sqlOptions.MigrationsAssembly("infnet.SurveyQuestionnaire.Infrastructure.Data");
-   sqlOptions.EnableRetryOnFailure(
-       maxRetryCount: 5,
-   maxRetryDelay: TimeSpan.FromSeconds(30),
-        errorNumbersToAdd: null);
-  });
+            options.UseSqlServer( configuration.GetConnectionString("DefaultConnection"),
+            sqlOptions =>
+            {
+               sqlOptions.MigrationsAssembly("infnet.SurveyQuestionnaire.Infrastructure.Data");
+               sqlOptions.EnableRetryOnFailure(maxRetryCount: 5,maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+            });
 
-  options.EnableSensitiveDataLogging(false);
-      options.EnableDetailedErrors(false);
-  options.ConfigureWarnings(warnings =>{ warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.ContextInitialized);});
+           options.EnableSensitiveDataLogging(false);
+           options.EnableDetailedErrors(false);
+           options.ConfigureWarnings(warnings =>{ warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.ContextInitialized);});
 
-          if (environment.IsDevelopment())
-    {
-       // Descomente apenas se precisar debugar queries
-      // options.LogTo(Console.WriteLine, LogLevel.Information);
-        }
-    });
+      });
 
-      // ==================== Unit of Work ====================
-   services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-      // ==================== Repositories ====================
- services.AddScoped<IUserRepository, UserRepository>();
+     
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
-    services.AddScoped<ISubmissionRepository, SubmissionRepository>();
-
- // ==================== Azure Service Bus ====================
-  // ✅ Sempre usa Azure Service Bus real
-    services.AddSingleton<IServiceBusPublisher, AzureServiceBusPublisher>();
+        services.AddScoped<ISubmissionRepository, SubmissionRepository>();
+        services.AddSingleton<IServiceBusPublisher, AzureServiceBusPublisher>();
 
         return services;
     }
@@ -75,6 +62,6 @@ public static class InfrastructureConfiguration
             throw;
         }
 
-    return services;
+        return services;
     }
 }

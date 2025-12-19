@@ -5,15 +5,16 @@ using infnet.SurveyQuestionnaire.Application.Validators;
 namespace infnet.SurveyQuestionnaire.Api.Configuration;
 
 /// <summary>
-/// Configuração de validações (FluentValidation)
+/// Configuração de validações
 /// </summary>
 public static class ValidationConfiguration
 {
     public static IServiceCollection AddValidation(this IServiceCollection services)
     {
-     
+        
         services.AddFluentValidationAutoValidation();
 
+       
         services.AddValidatorsFromAssemblyContaining<Program>();
         services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
 

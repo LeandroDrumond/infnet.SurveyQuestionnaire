@@ -10,14 +10,11 @@ public record CreateSubmissionRequestDto
     /// <summary>
     /// ID do questionário sendo respondido
     /// </summary>
-    [Required(ErrorMessage = "Questionnaire ID is required")]
     public Guid QuestionnaireId { get; init; }
 
     /// <summary>
     /// Lista de respostas
     /// </summary>
-    [Required(ErrorMessage = "Answers are required")]
-    [MinLength(1, ErrorMessage = "At least one answer is required")]
     public List<SubmissionAnswerDto> Answers { get; init; } = [];
 }
 
@@ -29,14 +26,11 @@ public record SubmissionAnswerDto
     /// <summary>
     /// ID da questão sendo respondida
     /// </summary>
-    [Required(ErrorMessage = "Question ID is required")]
     public Guid QuestionId { get; init; }
 
     /// <summary>
     /// Resposta em texto
     /// </summary>
-    [Required(ErrorMessage = "Answer is required")]
-    [StringLength(5000, MinimumLength = 1, ErrorMessage = "Answer must be between 1 and 5000 characters")]
     public string Answer { get; init; } = string.Empty;
 
     /// <summary>
