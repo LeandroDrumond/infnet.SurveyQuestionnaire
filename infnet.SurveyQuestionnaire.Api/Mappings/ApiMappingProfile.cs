@@ -13,12 +13,11 @@ public class ApiMappingProfile : Profile
 {
     public ApiMappingProfile()
     {
-        // ==================== User Mappings ====================
+
         CreateMap<CreateUserRequestDto, CreateUserRequest>();
         CreateMap<UpdateUserRequestDto, UpdateUserRequest>();
         CreateMap<UserResponse, UserResponseDto>();
 
-        // ==================== Questionnaire Mappings ====================
         CreateMap<CreateQuestionnaireRequestDto, CreateQuestionnaireRequest>();
         CreateMap<UpdateQuestionnaireRequestDto, UpdateQuestionnaireRequest>();
         CreateMap<PublishQuestionnaireRequestDto, PublishQuestionnaireRequest>();
@@ -31,7 +30,6 @@ public class ApiMappingProfile : Profile
         CreateMap<QuestionResponse, QuestionResponseDto>();
         CreateMap<OptionResponse, OptionResponseDto>();
 
-        // ==================== Submission Mappings ====================
         CreateMap<CreateSubmissionRequestDto, CreateSubmissionRequest>();
         CreateMap<SubmissionAnswerDto, SubmissionAnswerRequest>();
 

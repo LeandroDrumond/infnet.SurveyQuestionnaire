@@ -1,4 +1,3 @@
-using infnet.SurveyQuestionnaire.Domain.Common;
 using infnet.SurveyQuestionnaire.Domain.Entities;
 using infnet.SurveyQuestionnaire.Domain.Repositories;
 using infnet.SurveyQuestionnaire.Infrastructure.Data.Context;
@@ -15,32 +14,32 @@ public class SubmissionRepository : ISubmissionRepository
    _context = context;
     }
 
-    public async Task<Submission?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+public async Task<Submission?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
 return await _context.Submissions
-       .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+   .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
 
     public async Task<Submission?> GetByIdWithItemsAsync(Guid id, CancellationToken cancellationToken = default)
  {
-   return await _context.Submissions
+ return await _context.Submissions
    .Include(s => s.Items)
     .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 }
 
     public async Task<IEnumerable<Submission>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _context.Submissions
-          .OrderByDescending(s => s.SubmittedAt)
+      return await _context.Submissions
+        .OrderByDescending(s => s.SubmittedAt)
     .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Submission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+  public async Task<IEnumerable<Submission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return await _context.Submissions
-            .Where(s => s.RespondentUserId == userId)
-      .OrderByDescending(s => s.SubmittedAt)
-      .ToListAsync(cancellationToken);
+return await _context.Submissions
+        .Where(s => s.RespondentUserId == userId)
+  .OrderByDescending(s => s.SubmittedAt)
+   .ToListAsync(cancellationToken);
     }
 
   public async Task<IEnumerable<Submission>> GetByQuestionnaireIdAsync(Guid questionnaireId, CancellationToken cancellationToken = default)
@@ -63,24 +62,6 @@ return await _context.Submissions
     .CountAsync(s => s.QuestionnaireId == questionnaireId, cancellationToken);
     }
 
-  public async Task<Submission?> GetBySpecAsync(ISpecification<Submission> specification, CancellationToken cancellationToken = default)
-    {
-   return await ApplySpecification(specification)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-  public async Task<IEnumerable<Submission>> GetAllBySpecAsync(ISpecification<Submission> specification, CancellationToken cancellationToken = default)
-    {
- return await ApplySpecification(specification)
-       .ToListAsync(cancellationToken);
-    }
-
-    public async Task<int> CountAsync(ISpecification<Submission> specification, CancellationToken cancellationToken = default)
-    {
-    return await ApplySpecification(specification)
- .CountAsync(cancellationToken);
-    }
-
     public void Add(Submission submission)
     {
    _context.Submissions.Add(submission);
@@ -88,16 +69,11 @@ return await _context.Submissions
 
     public void Update(Submission submission)
     {
-        _context.Submissions.Update(submission);
+_context.Submissions.Update(submission);
     }
 
     public void Remove(Submission submission)
     {
  _context.Submissions.Remove(submission);
-    }
-
-    private IQueryable<Submission> ApplySpecification(ISpecification<Submission> specification)
-    {
-      return SpecificationEvaluator.GetQuery(_context.Submissions.AsQueryable(), specification);
     }
 }

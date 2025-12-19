@@ -114,7 +114,7 @@ public class QuestionResponseDto
     /// </summary>
     public Guid Id { get; init; }
     
-/// <summary>
+    /// <summary>
     /// Texto da questão (always returned)
     /// </summary>
     public string Text { get; init; } = string.Empty;

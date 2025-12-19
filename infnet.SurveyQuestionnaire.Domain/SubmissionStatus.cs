@@ -13,12 +13,12 @@ public enum SubmissionStatus
     /// <summary>
     /// Sendo processado pela Azure Function
     /// </summary>
-  Processing = 1,
+    Processing = 1,
     
     /// <summary>
     /// Processado e salvo com sucesso
     /// </summary>
-  Completed = 2,
+    Completed = 2,
     
     /// <summary>
     /// Falha no processamento

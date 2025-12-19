@@ -1,4 +1,4 @@
-using AutoMapper;
+Ôªøusing AutoMapper;
 using infnet.SurveyQuestionnaire.Api.DTOs;
 using infnet.SurveyQuestionnaire.Api.Models;
 using infnet.SurveyQuestionnaire.Application.DTOs.Submissions;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace infnet.SurveyQuestionnaire.Api.Controllers;
 
 /// <summary>
-/// Controller para operaÁıes de submissions (respostas de question·rios)
+/// Controller para opera√ß√µes de submissions (respostas de question√°rios)
 /// </summary>
 [ApiController]
 [Route("api/submissions")]
@@ -18,186 +18,118 @@ public class SubmissionsController : ControllerBase
     private readonly ISubmissionService _submissionService;
     private readonly IMapper _mapper;
 
-    public SubmissionsController(
- ISubmissionService submissionService,
-        IMapper mapper)
+    public SubmissionsController(ISubmissionService submissionService,IMapper mapper)
     {
         _submissionService = submissionService;
-      _mapper = mapper;
+        _mapper = mapper;
     }
 
- // ==================== Create Submission (Async) ====================
-
     /// <summary>
-    /// Cria uma nova submission (resposta de question·rio) - Processamento AssÌncrono
+    /// Cria uma nova submission (resposta de question√°rio)
     /// </summary>
     /// <param name="requestDto">Dados da submission</param>
-    /// <param name="userId">ID do usu·rio respondente (deve ser usu·rio p˙blico)</param>
+    /// <param name="userId">ID do usu√°rio respondente (deve ser usu√°rio p√∫blico)</param>
     /// <returns>Submission criada com status Pending</returns>
-    /// <response code="202">Submission aceita para processamento assÌncrono</response>
-    /// <response code="400">Dados inv·lidos ou question·rio n„o disponÌvel</response>
-    /// <response code="403">Usu·rio n„o È p˙blico ou j· respondeu</response>
-    /// <response code="404">Question·rio n„o encontrado</response>
-    /// <remarks>
-    /// ?? Esta operaÁ„o È ASSÕNCRONA:
-    /// - A API retorna 202 Accepted imediatamente
-    /// - A submission È enviada para Azure Service Bus
-    /// - Uma Azure Function processa em background
-    /// - Use GET /api/submissions/{id} para verificar o status
-    /// 
-    /// Status possÌveis:
-/// - Pending: Aguardando processamento
-    /// - Processing: Sendo processado
-    /// - Completed: Processado com sucesso
-    /// - Failed: Erro no processamento
-    /// 
-    /// Exemplo de requisiÁ„o:
-    /// 
-    ///     POST /api/submissions
-    ///     {
-    ///   "questionnaireId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  ///   "answers": [
-    ///         {
-///      "questionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    ///    "answer": "Minha resposta",
-    ///           "selectedOptionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-    ///      }
-    ///       ]
-    ///     }
-    /// 
-    /// </remarks>
+    /// <response code="202">Submission aceita para processamento ass√≠ncrono</response>
+    /// <response code="400">Dados inv√°lidos ou question√°rio n√£o dispon√≠vel</response>
+    /// <response code="403">Usu√°rio n√£o √© p√∫blico ou j√° respondeu</response>
+    /// <response code="404">Question√°rio n√£o encontrado</response>
+   
     [HttpPost]
     [ProducesResponseType(typeof(SubmissionResponseDto), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CreateSubmission(
-        [FromBody] CreateSubmissionRequestDto requestDto,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> CreateSubmission([FromBody] CreateSubmissionRequestDto requestDto,
+                                                     [FromHeader(Name = "X-User-Id")] Guid userId)
     {
-      var request = _mapper.Map<CreateSubmissionRequest>(requestDto);
-  var response = await _submissionService.CreateSubmissionAsync(request, userId);
-      var responseDto = _mapper.Map<SubmissionResponseDto>(response);
+        var request = _mapper.Map<CreateSubmissionRequest>(requestDto);
+        var response = await _submissionService.CreateSubmissionAsync(request, userId);
+        var responseDto = _mapper.Map<SubmissionResponseDto>(response);
 
-        // ? Retorna 202 Accepted (processamento assÌncrono)
         return Accepted(responseDto);
     }
-
-    // ==================== Get Submission by ID ====================
 
     /// <summary>
     /// Busca uma submission por ID
     /// </summary>
     /// <param name="id">ID da submission</param>
-    /// <param name="userId">ID do usu·rio (para validar autorizaÁ„o)</param>
+    /// <param name="userId">ID do usu√°rio (para validar autoriza√ß√£o)</param>
     /// <returns>Submission encontrada</returns>
     /// <response code="200">Submission encontrada</response>
-    /// <response code="403">Usu·rio n„o autorizado</response>
-    /// <response code="404">Submission n„o encontrada</response>
+    /// <response code="403">Usu√°rio n√£o autorizado</response>
+    /// <response code="404">Submission n√£o encontrada</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(SubmissionResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSubmissionById(
- Guid id,
-  [FromHeader(Name = "X-User-Id")] Guid userId)
-  {
+    public async Task<IActionResult> GetSubmissionById(Guid id,[FromHeader(Name = "X-User-Id")] Guid userId)
+    {
         var response = await _submissionService.GetSubmissionByIdAsync(id, userId);
         var responseDto = _mapper.Map<SubmissionResponseDto>(response);
-
-  return Ok(responseDto);
-    }
-
-    // ==================== Get Submission with Items ====================
-
-    /// <summary>
-    /// Busca uma submission por ID incluindo todas as respostas
-    /// </summary>
-  /// <param name="id">ID da submission</param>
-    /// <param name="userId">ID do usu·rio (para validar autorizaÁ„o)</param>
-/// <returns>Submission com respostas</returns>
-    /// <response code="200">Submission encontrada com respostas</response>
- /// <response code="403">Usu·rio n„o autorizado</response>
-    /// <response code="404">Submission n„o encontrada</response>
-    [HttpGet("{id:guid}/items")]
- [ProducesResponseType(typeof(SubmissionResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetSubmissionWithItems(
-      Guid id,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
-    {
-    var response = await _submissionService.GetSubmissionWithItemsAsync(id, userId);
-      var responseDto = _mapper.Map<SubmissionResponseDto>(response);
 
         return Ok(responseDto);
     }
 
-    // ==================== Get My Submissions ====================
-
     /// <summary>
-    /// Lista todas as submissions do usu·rio logado
+    /// Busca uma submission por ID incluindo todas as respostas
     /// </summary>
-    /// <param name="userId">ID do usu·rio</param>
-    /// <returns>Lista de submissions do usu·rio</returns>
-    /// <response code="200">Lista de submissions</response>
-    [HttpGet("my")]
-    [ProducesResponseType(typeof(IEnumerable<SubmissionListResponseDto>), StatusCodes.Status200OK)]
-  public async Task<IActionResult> GetMySubmissions(
-        [FromHeader(Name = "X-User-Id")] Guid userId)
+    /// <param name="id">ID da submission</param>
+    /// <param name="userId">ID do usu√°rio (para validar autoriza√ß√£o)</param>
+    /// <returns>Submission com respostas</returns>
+    /// <response code="200">Submission encontrada com respostas</response>
+    /// <response code="403">Usu√°rio n√£o autorizado</response>
+    /// <response code="404">Submission n√£o encontrada</response>
+    [HttpGet("{id:guid}/items")]
+    [ProducesResponseType(typeof(SubmissionResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSubmissionWithItems(Guid id,[FromHeader(Name = "X-User-Id")] Guid userId)
     {
- var responses = await _submissionService.GetMySubmissionsAsync(userId);
-        var responseDtos = _mapper.Map<IEnumerable<SubmissionListResponseDto>>(responses);
+        var response = await _submissionService.GetSubmissionWithItemsAsync(id, userId);
+        var responseDto = _mapper.Map<SubmissionResponseDto>(response);
 
-        return Ok(responseDtos);
+        return Ok(responseDto);
     }
 
-    // ==================== Get Questionnaire Submissions (Admin) ====================
-
     /// <summary>
-    /// Lista todas as submissions de um question·rio (apenas admin ou criador)
-/// </summary>
- /// <param name="questionnaireId">ID do question·rio</param>
-    /// <param name="userId">ID do usu·rio (admin ou criador)</param>
-    /// <returns>Lista de submissions do question·rio</returns>
+    /// Lista todas as submissions de um question√°rio (apenas admin ou criador)
+    /// </summary>
+    /// <param name="questionnaireId">ID do question√°rio</param>
+    /// <param name="userId">ID do usu√°rio (admin ou criador)</param>
+    /// <returns>Lista de submissions do question√°rio</returns>
     /// <response code="200">Lista de submissions</response>
-  /// <response code="403">Usu·rio n„o autorizado</response>
-    /// <response code="404">Question·rio n„o encontrado</response>
+    /// <response code="403">Usu√°rio n√£o autorizado</response>
+    /// <response code="404">Question√°rio n√£o encontrado</response>
     [HttpGet("questionnaire/{questionnaireId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<SubmissionListResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetQuestionnaireSubmissions(
-      Guid questionnaireId,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
- {
-   var responses = await _submissionService.GetQuestionnaireSubmissionsAsync(questionnaireId, userId);
+    public async Task<IActionResult> GetQuestionnaireSubmissions(Guid questionnaireId,[FromHeader(Name = "X-User-Id")] Guid userId)
+    {
+        var responses = await _submissionService.GetQuestionnaireSubmissionsAsync(questionnaireId, userId);
         var responseDtos = _mapper.Map<IEnumerable<SubmissionListResponseDto>>(responses);
 
         return Ok(responseDtos);
     }
 
- // ==================== Count Questionnaire Submissions (Admin) ====================
-
     /// <summary>
-    /// Conta quantas submissions um question·rio tem (apenas admin ou criador)
+    /// Conta quantas submissions um question√°rio tem (apenas admin ou criador)
     /// </summary>
-    /// <param name="questionnaireId">ID do question·rio</param>
-    /// <param name="userId">ID do usu·rio (admin ou criador)</param>
-    /// <returns>N˙mero de submissions</returns>
-    /// <response code="200">N˙mero de submissions</response>
-    /// <response code="403">Usu·rio n„o autorizado</response>
-    /// <response code="404">Question·rio n„o encontrado</response>
+    /// <param name="questionnaireId">ID do question√°rio</param>
+    /// <param name="userId">ID do usu√°rio (admin ou criador)</param>
+    /// <returns>N√∫mero de submissions</returns>
+    /// <response code="200">N√∫mero de submissions</response>
+    /// <response code="403">Usu√°rio n√£o autorizado</response>
+    /// <response code="404">Question√°rio n√£o encontrado</response>
     [HttpGet("questionnaire/{questionnaireId:guid}/count")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-[ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CountQuestionnaireSubmissions(
-      Guid questionnaireId,
-  [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> CountQuestionnaireSubmissions(Guid questionnaireId,[FromHeader(Name = "X-User-Id")] Guid userId)
     {
         var count = await _submissionService.CountQuestionnaireSubmissionsAsync(questionnaireId, userId);
 
-return Ok(new { count });
+        return Ok(new { count });
     }
 }

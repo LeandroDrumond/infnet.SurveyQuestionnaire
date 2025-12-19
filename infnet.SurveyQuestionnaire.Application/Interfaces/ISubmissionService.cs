@@ -34,13 +34,6 @@ public interface ISubmissionService
   Task<SubmissionResponse> GetSubmissionWithItemsAsync(Guid id, Guid userId);
 
     /// <summary>
-    /// Lista todas as submissions do usuário logado
-    /// </summary>
-    /// <param name="userId">ID do usuário</param>
-    /// <returns>Lista de submissions do usuário</returns>
-  Task<IEnumerable<SubmissionListResponse>> GetMySubmissionsAsync(Guid userId);
-
-    /// <summary>
     /// Lista todas as submissions de um questionário (apenas para admin ou criador)
     /// </summary>
     /// <param name="questionnaireId">ID do questionário</param>
@@ -62,5 +55,5 @@ public interface ISubmissionService
     /// Processa uma submission (usado pela Azure Function)
     /// </summary>
     /// <param name="message">Mensagem do Service Bus</param>
- Task ProcessSubmissionAsync(SubmissionMessage message);
+    Task ProcessSubmissionAsync(SubmissionMessage message);
 }

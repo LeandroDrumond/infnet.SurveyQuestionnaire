@@ -7,20 +7,20 @@ namespace infnet.SurveyQuestionnaire.Infrastructure.Data.Configurations;
 public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 {
     public void Configure(EntityTypeBuilder<Question> builder)
- {
-    builder.ToTable("Questions");
+    {
+         builder.ToTable("Questions");
 
-     builder.HasKey(q => q.Id);
+        builder.HasKey(q => q.Id);
 
-      builder.Property(q => q.Text)
+        builder.Property(q => q.Text)
             .IsRequired()
           .HasMaxLength(500);
 
         builder.Property(q => q.QuestionnaireId)
-  .IsRequired();
+               .IsRequired();
 
-     builder.Property(q => q.IsRequired)
-   .IsRequired()
+       builder.Property(q => q.IsRequired)
+            .IsRequired()
         .HasDefaultValue(false);
 
         builder.Property(q => q.IsMultipleChoice)
@@ -28,17 +28,17 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .HasDefaultValue(false);
 
         builder.Property(q => q.CreatedAt)
-    .IsRequired();
+                .IsRequired();
 
-   builder.Property(q => q.UpdatedAt)
-      .IsRequired(false);
+        builder.Property(q => q.UpdatedAt)
+               .IsRequired(false);
 
-     builder.HasMany(q => q.Options)
-         .WithOne()
-       .HasForeignKey(o => o.QuestionId)
-.IsRequired()
-     .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(q => q.Options)
+               .WithOne()
+               .HasForeignKey(o => o.QuestionId)
+               .IsRequired()
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(q => q.QuestionnaireId);
-  }
+    }
 }

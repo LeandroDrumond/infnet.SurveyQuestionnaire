@@ -104,23 +104,17 @@ public class SubmissionService : ISubmissionService
         var submission = await _submissionRepository.GetByIdWithItemsAsync(id)
   ?? throw new SubmissionNotFoundException(id);
 
-        // Validar autorização
+      // Validar autorização
   await ValidateSubmissionAccess(submission, userId);
 
   return MapToDetailedResponse(submission);
-}
-
-    public async Task<IEnumerable<SubmissionListResponse>> GetMySubmissionsAsync(Guid userId)
-    {
-     var submissions = await _submissionRepository.GetByUserIdAsync(userId);
-        return await MapToListResponseAsync(submissions);
     }
 
     public async Task<IEnumerable<SubmissionListResponse>> GetQuestionnaireSubmissionsAsync(Guid questionnaireId, Guid userId)
     {
     // Validar autorização (apenas admin ou criador do questionário)
     var questionnaire = await _questionnaireRepository.GetByIdAsync(questionnaireId)
-         ?? throw new KeyNotFoundException($"Questionnaire with ID '{questionnaireId}' not found");
+   ?? throw new KeyNotFoundException($"Questionnaire with ID '{questionnaireId}' not found");
 
      await ValidateQuestionnaireOwnership(questionnaire, userId);
 

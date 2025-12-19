@@ -7,8 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Questionnaires\" />
-    <Folder Include="Questions\Exceptions\" />
+    <Compile Remove="Questionnaires\**" />
+    <Compile Remove="Questions\**" />
+    <EmbeddedResource Remove="Questionnaires\**" />
+    <EmbeddedResource Remove="Questions\**" />
+    <None Remove="Questionnaires\**" />
+    <None Remove="Questions\**" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ public enum QuestionnaireStatus
     /// <summary>
     /// Rascunho - questionário em criação
     /// </summary>
-  Draft = 0,
+    Draft = 0,
     
     /// <summary>
     /// Publicado - questionário disponível para coleta de respostas
@@ -17,6 +17,6 @@ public enum QuestionnaireStatus
     
     /// <summary>
     /// Fechado - questionário não aceita mais respostas
-  /// </summary>
+    /// </summary>
     Closed = 2
 }

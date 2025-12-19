@@ -2,8 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace infnet.SurveyQuestionnaire.Api.DTOs;
 
-// ==================== Request DTOs ====================
-
 /// <summary>
 /// DTO para criação de submission (resposta de questionário)
 /// </summary>
@@ -13,14 +11,14 @@ public record CreateSubmissionRequestDto
     /// ID do questionário sendo respondido
     /// </summary>
     [Required(ErrorMessage = "Questionnaire ID is required")]
-public Guid QuestionnaireId { get; init; }
+    public Guid QuestionnaireId { get; init; }
 
     /// <summary>
     /// Lista de respostas
     /// </summary>
     [Required(ErrorMessage = "Answers are required")]
     [MinLength(1, ErrorMessage = "At least one answer is required")]
-  public List<SubmissionAnswerDto> Answers { get; init; } = [];
+    public List<SubmissionAnswerDto> Answers { get; init; } = [];
 }
 
 /// <summary>
@@ -34,7 +32,7 @@ public record SubmissionAnswerDto
     [Required(ErrorMessage = "Question ID is required")]
     public Guid QuestionId { get; init; }
 
- /// <summary>
+    /// <summary>
     /// Resposta em texto
     /// </summary>
     [Required(ErrorMessage = "Answer is required")]
@@ -46,8 +44,6 @@ public record SubmissionAnswerDto
     /// </summary>
     public Guid? SelectedOptionId { get; init; }
 }
-
-// ==================== Response DTOs ====================
 
 /// <summary>
 /// DTO de resposta para submission
@@ -83,7 +79,7 @@ public record SubmissionListResponseDto
 {
     public Guid Id { get; init; }
     public Guid QuestionnaireId { get; init; }
- public string QuestionnaireTitle { get; init; } = string.Empty;
+    public string QuestionnaireTitle { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public DateTime SubmittedAt { get; init; }
 }

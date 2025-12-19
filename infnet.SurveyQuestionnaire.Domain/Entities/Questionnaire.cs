@@ -57,7 +57,6 @@ public sealed class Questionnaire : Entity
 
         var question = Question.Create(text, isRequired, isMultipleChoice);
         
-        // ? SOLUÇÃO: Setar FK antes de adicionar à coleção
         question.SetQuestionnaireId(Id);
         
         _questions.Add(question);
@@ -78,13 +77,10 @@ public sealed class Questionnaire : Entity
         if (Status != QuestionnaireStatus.Draft)
             throw new QuestionnaireCannotModifyPublishedException(Id);
 
-        // Cria questão de múltipla escolha
         var question = Question.Create(text, isRequired, isMultipleChoice: true);
       
-        // ? SOLUÇÃO: Setar FK antes de adicionar opções
         question.SetQuestionnaireId(Id);
    
-        // Adiciona todas as opções
         foreach (var (optionText, order) in options)
         {
             question.AddOption(optionText, order);
@@ -104,17 +100,17 @@ public sealed class Questionnaire : Entity
     public void AddOptionsToQuestion(Guid questionId, IEnumerable<(string Text, int Order)> options)
     {
         if (Status != QuestionnaireStatus.Draft)
-  throw new QuestionnaireCannotModifyPublishedException(Id);
+             throw new QuestionnaireCannotModifyPublishedException(Id);
 
         var question = _questions.FirstOrDefault(q => q.Id == questionId)
-      ?? throw new InvalidOperationException($"Question with ID '{questionId}' not found in questionnaire");
+            ?? throw new InvalidOperationException($"Question with ID '{questionId}' not found in questionnaire");
 
-foreach (var (text, order) in options)
+        foreach (var (text, order) in options)
         {
             question.AddOption(text, order);
         }
  
-     SetUpdatedAt();
+           SetUpdatedAt();
     }
 
     /// <summary>
@@ -148,7 +144,7 @@ foreach (var (text, order) in options)
     }
 
     /// <summary>
-    /// Remove uma opção de uma questão (AGGREGATE ROOT METHOD)
+    /// Remove uma opção de uma questão
     /// </summary>
     public void RemoveOptionFromQuestion(Guid questionId, Guid optionId)
     {

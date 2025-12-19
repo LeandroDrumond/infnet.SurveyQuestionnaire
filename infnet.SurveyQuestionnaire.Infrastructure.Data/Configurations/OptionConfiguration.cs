@@ -12,23 +12,20 @@ public class OptionConfiguration : IEntityTypeConfiguration<Option>
 
         builder.HasKey(o => o.Id);
 
-        builder.Property(o => o.Text)
-     .IsRequired()
-  .HasMaxLength(200);
+        builder.Property(o => o.Text).IsRequired().HasMaxLength(200);
 
-builder.Property(o => o.QuestionId)
-            .IsRequired();
+        builder.Property(o => o.QuestionId)
+                .IsRequired();
 
         builder.Property(o => o.Order)
-        .IsRequired();
+               .IsRequired();
 
         builder.Property(o => o.CreatedAt)
-            .IsRequired();
+               .IsRequired();
 
         builder.Property(o => o.UpdatedAt)
-    .IsRequired(false);
+               .IsRequired(false);
 
-        // Índices
         builder.HasIndex(o => o.QuestionId);
         builder.HasIndex(o => new { o.QuestionId, o.Order }).IsUnique();
     }

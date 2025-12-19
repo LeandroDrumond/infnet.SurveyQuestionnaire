@@ -4,13 +4,7 @@ using infnet.SurveyQuestionnaire.Domain.Exceptions;
 namespace infnet.SurveyQuestionnaire.Domain.Entities;
 
 /// <summary>
-/// Representa uma submissão (resposta) de um questionário - AGGREGATE ROOT
-/// 
-/// ? Esta é o AGGREGATE ROOT do agregado Submission
-/// - Ponto de entrada único para modificações
-/// - Garante invariantes de negócio
-/// - Controla transações
-/// - Mantém consistência do agregado inteiro
+/// Representa uma submissão (resposta) de um questionário
 /// </summary>
 public sealed class Submission : Entity
 {
@@ -41,29 +35,28 @@ public sealed class Submission : Entity
     /// </summary>
     public string? FailureReason { get; private set; }
 
-  /// <summary>
+    /// <summary>
     /// Respostas das questões
     /// </summary>
     public IReadOnlyCollection<SubmissionItem> Items => _items.AsReadOnly();
 
-    // EF Core Constructor
     private Submission()
     {
     }
 
   private Submission(Guid questionnaireId, Guid respondentUserId) : base()
-    {
+  {
         if (questionnaireId == Guid.Empty)
-     throw new ArgumentException("Questionnaire ID cannot be empty", nameof(questionnaireId));
+            throw new ArgumentException("Questionnaire ID cannot be empty", nameof(questionnaireId));
 
- if (respondentUserId == Guid.Empty)
+        if (respondentUserId == Guid.Empty)
           throw new ArgumentException("Respondent user ID cannot be empty", nameof(respondentUserId));
 
-     QuestionnaireId = questionnaireId;
-    RespondentUserId = respondentUserId;
+         QuestionnaireId = questionnaireId;
+        RespondentUserId = respondentUserId;
         SubmittedAt = DateTime.UtcNow;
         Status = SubmissionStatus.Pending;
-    }
+  }
 
     /// <summary>
     /// Cria uma nova submissão
@@ -76,7 +69,7 @@ public sealed class Submission : Entity
     }
 
     /// <summary>
-    /// Adiciona uma resposta à submissão (AGGREGATE ROOT METHOD)
+    /// Adiciona uma resposta à submissão
     /// </summary>
     /// <param name="questionId">ID da questão</param>
     /// <param name="answer">Resposta em texto</param>
@@ -84,13 +77,13 @@ public sealed class Submission : Entity
     public void AddItem(Guid questionId, string answer, Guid? selectedOptionId = null)
     {
         if (Status != SubmissionStatus.Pending)
-   throw new InvalidSubmissionException($"Cannot add items to submission with status {Status}");
+            throw new InvalidSubmissionException($"Cannot add items to submission with status {Status}");
 
-        // Validar duplicação (não pode responder a mesma questão duas vezes)
         if (_items.Any(i => i.QuestionId == questionId))
-     throw new InvalidSubmissionException($"Question '{questionId}' has already been answered in this submission");
+            throw new InvalidSubmissionException($"Question '{questionId}' has already been answered in this submission");
 
         var item = SubmissionItem.Create(questionId, answer, selectedOptionId);
+        
         _items.Add(item);
         SetUpdatedAt();
     }
@@ -100,7 +93,7 @@ public sealed class Submission : Entity
     /// </summary>
     public void StartProcessing()
     {
-if (Status != SubmissionStatus.Pending)
+        if (Status != SubmissionStatus.Pending)
             throw new InvalidSubmissionException($"Cannot start processing submission with status {Status}");
 
         Status = SubmissionStatus.Processing;
@@ -113,7 +106,7 @@ if (Status != SubmissionStatus.Pending)
  public void Complete()
     {
         if (Status != SubmissionStatus.Processing && Status != SubmissionStatus.Pending)
-  throw new InvalidSubmissionException($"Cannot complete submission with status {Status}");
+            throw new InvalidSubmissionException($"Cannot complete submission with status {Status}");
 
       if (_items.Count == 0)
             throw new InvalidSubmissionException("Cannot complete submission without any answers");
@@ -131,7 +124,7 @@ if (Status != SubmissionStatus.Pending)
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentException("Failure reason cannot be empty", nameof(reason));
 
-   Status = SubmissionStatus.Failed;
+        Status = SubmissionStatus.Failed;
         FailureReason = reason.Trim();
         SetUpdatedAt();
     }

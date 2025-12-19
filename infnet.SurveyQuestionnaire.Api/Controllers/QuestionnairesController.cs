@@ -216,25 +216,18 @@ public class QuestionnairesController : ControllerBase
     /// <response code="401">Não autorizado</response>
     /// <response code="404">Questionário não encontrado</response>
     [HttpPost("{id:guid}/close")]
-[ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
-  [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
- public async Task<IActionResult> CloseQuestionnaire(
-  Guid id,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> CloseQuestionnaire(Guid id,[FromHeader(Name = "X-User-Id")] Guid userId)
     {
-        _logger.LogInformation("Closing questionnaire {QuestionnaireId} by user {UserId}", id, userId);
-
+      
         var response = await _questionnaireService.CloseQuestionnaireAsync(id, userId);
         var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
 
-      _logger.LogInformation("Questionnaire {QuestionnaireId} closed successfully", id);
-
         return Ok(responseDto);
     }
-
-    // ==================== Question Endpoints ====================
 
     /// <summary>
     /// Adiciona uma questão ao questionário
@@ -246,32 +239,27 @@ public class QuestionnairesController : ControllerBase
     /// <response code="200">Questão adicionada</response>
     /// <response code="400">Dados inválidos</response>
     /// <response code="401">Não autorizado</response>
-/// <response code="404">Questionário não encontrado</response>
-[HttpPost("{id:guid}/questions")]
+    /// <response code="404">Questionário não encontrado</response>
+    [HttpPost("{id:guid}/questions")]
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
- public async Task<IActionResult> AddQuestion(
-  Guid id,
-        [FromBody] AddQuestionRequestDto requestDto,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
-{
-    _logger.LogInformation("Adding question to questionnaire {QuestionnaireId}", id);
-
-  var request = _mapper.Map<AddQuestionRequest>(requestDto);
-   var response = await _questionnaireService.AddQuestionAsync(id, request, userId);
-     var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
-
-  return Ok(responseDto);
- }
+    public async Task<IActionResult> AddQuestion(Guid id,[FromBody] AddQuestionRequestDto requestDto,
+                                                [FromHeader(Name = "X-User-Id")] Guid userId)
+    {
+           var request = _mapper.Map<AddQuestionRequest>(requestDto);
+           var response = await _questionnaireService.AddQuestionAsync(id, request, userId);
+           var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
+           return Ok(responseDto);
+    }
 
     /// <summary>
     /// Atualiza uma questão
     /// </summary>
     /// <param name="questionId">ID da questão</param>
-/// <param name="requestDto">Novos dados da questão</param>
-  /// <param name="userId">ID do usuário</param>
+    /// <param name="requestDto">Novos dados da questão</param>
+    /// <param name="userId">ID do usuário</param>
     /// <returns>Questão atualizada</returns>
     /// <response code="200">Questão atualizada</response>
     /// <response code="400">Dados inválidos</response>
@@ -282,23 +270,19 @@ public class QuestionnairesController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateQuestion(
-   Guid questionId,
-        [FromBody] UpdateQuestionRequestDto requestDto,
-  [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> UpdateQuestion(Guid questionId,[FromBody] UpdateQuestionRequestDto requestDto,
+                                                   [FromHeader(Name = "X-User-Id")] Guid userId)
     {
-        _logger.LogInformation("Updating question {QuestionId}", questionId);
-
-      var request = _mapper.Map<UpdateQuestionRequest>(requestDto);
-      var response = await _questionnaireService.UpdateQuestionAsync(questionId, request, userId);
+        var request = _mapper.Map<UpdateQuestionRequest>(requestDto);
+        var response = await _questionnaireService.UpdateQuestionAsync(questionId, request, userId);
         var responseDto = _mapper.Map<QuestionResponseDto>(response);
 
-    return Ok(responseDto);
+        return Ok(responseDto);
     }
 
     /// <summary>
-  /// Deleta uma questão
- /// </summary>
+    /// Deleta uma questão
+    /// </summary>
     /// <param name="questionId">ID da questão</param>
     /// <param name="userId">ID do usuário</param>
     /// <returns>No content</returns>
@@ -311,18 +295,13 @@ public class QuestionnairesController : ControllerBase
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status501NotImplemented)]
-    public async Task<IActionResult> DeleteQuestion(
-     Guid questionId,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
- {
-    _logger.LogInformation("Deleting question {QuestionId}", questionId);
+    public async Task<IActionResult> DeleteQuestion(Guid questionId,[FromHeader(Name = "X-User-Id")] Guid userId)
+    {
+        
+        await _questionnaireService.DeleteQuestionAsync(questionId, userId);
 
-    await _questionnaireService.DeleteQuestionAsync(questionId, userId);
-
-   return NoContent();
+        return NoContent();
     }
-
-    // ==================== Option Endpoints ====================
 
     /// <summary>
     /// Adiciona uma ou mais opções a uma questão de múltipla escolha
@@ -335,38 +314,15 @@ public class QuestionnairesController : ControllerBase
     /// <response code="400">Dados inválidos ou questão não é múltipla escolha</response>
     /// <response code="401">Não autorizado</response>
     /// <response code="404">Questão não encontrada</response>
-    /// <remarks>
-    /// Você pode enviar uma ou mais opções de uma vez.
-    /// 
-    /// Exemplo com 1 opção:
-    /// 
-    ///     POST /api/questionnaires/questions/{questionId}/options
-    ///     [
-    ///       { "text": "Nova opção", "order": 1 }
-    /// ]
-    /// 
-  /// Exemplo com múltiplas opções:
-    /// 
-    ///     POST /api/questionnaires/questions/{questionId}/options
-    ///     [
-    ///       { "text": "Opção 1", "order": 1 },
-    ///    { "text": "Opção 2", "order": 2 },
-    ///       { "text": "Opção 3", "order": 3 }
-    ///     ]
-    /// 
-    /// </remarks>
     [HttpPost("questions/{questionId:guid}/options")]
-  [ProducesResponseType(typeof(QuestionResponseDto), StatusCodes.Status200OK)]
- [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(QuestionResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddOptions(
-     Guid questionId,
-        [FromBody] List<AddOptionRequestDto> optionsDto,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> AddOptions(Guid questionId,[FromBody] List<AddOptionRequestDto> optionsDto,
+                                                [FromHeader(Name = "X-User-Id")] Guid userId)
     {
-        _logger.LogInformation("Adding {Count} option(s) to question {QuestionId}", optionsDto.Count, questionId);
-
+       
         var options = optionsDto.Select(dto => _mapper.Map<AddOptionRequest>(dto));
         var response = await _questionnaireService.AddOptionsToQuestionAsync(questionId, options, userId);
         var responseDto = _mapper.Map<QuestionResponseDto>(response);

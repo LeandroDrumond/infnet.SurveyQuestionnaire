@@ -6,9 +6,7 @@ namespace infnet.SurveyQuestionnaire.Domain.Users.ValueObjects;
 public sealed class Email : ValueObject
 {
     private const int _maxLength = 200;
-    private static readonly Regex _emailRegex = new(
-    @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex _emailRegex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public string Value { get; }
 

@@ -8,7 +8,6 @@ public class UserResponseDto
     /// <summary>
     /// Identificador único do usuário (always returned)
     /// </summary>
-    /// <example>3fa85f64-5717-4562-b3fc-2c963f66afa6</example>
     public Guid Id { get; set; }
 
     /// <summary>
@@ -32,13 +31,11 @@ public class UserResponseDto
     /// <summary>
     /// Data e hora de criação do usuário em UTC (always returned)
     /// </summary>
-    /// <example>2025-01-15T10:30:00Z</example>
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Data e hora da última atualização do usuário em UTC (optional, may be null if never updated)
     /// </summary>
-    /// <example>2025-01-15T15:45:00Z</example>
     public DateTime? UpdatedAt { get; set; }
 
     /// <summary>

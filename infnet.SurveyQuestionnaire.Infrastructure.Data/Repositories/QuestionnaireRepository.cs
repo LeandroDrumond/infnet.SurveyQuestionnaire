@@ -1,5 +1,4 @@
 ﻿using infnet.SurveyQuestionnaire.Domain;
-using infnet.SurveyQuestionnaire.Domain.Common;
 using infnet.SurveyQuestionnaire.Domain.Entities;
 using infnet.SurveyQuestionnaire.Domain.Repositories;
 using infnet.SurveyQuestionnaire.Infrastructure.Data.Context;
@@ -51,27 +50,6 @@ public class QuestionnaireRepository : IQuestionnaireRepository
        .Where(q => q.Status == QuestionnaireStatus.Published)
        .OrderByDescending(q => q.CreatedAt)
     .ToListAsync(cancellationToken);
-    }
-
-    public async Task<Questionnaire?> GetBySpecAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
-    {
-        return await SpecificationEvaluator
-            .GetQuery(_context.Questionnaires.AsQueryable(), specification)
-      .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Questionnaire>> GetAllBySpecAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
-    {
-return await SpecificationEvaluator
-            .GetQuery(_context.Questionnaires.AsQueryable(), specification)
-        .ToListAsync(cancellationToken);
-    }
-
-    public async Task<int> CountAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
-    {
-        return await SpecificationEvaluator
-     .GetQueryForCount(_context.Questionnaires.AsQueryable(), specification)
-  .CountAsync(cancellationToken);
     }
 
     public void Add(Questionnaire questionnaire)

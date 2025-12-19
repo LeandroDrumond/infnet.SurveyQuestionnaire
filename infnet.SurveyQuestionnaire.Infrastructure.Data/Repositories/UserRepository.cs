@@ -1,5 +1,4 @@
-﻿using infnet.SurveyQuestionnaire.Domain.Common;
-using infnet.SurveyQuestionnaire.Domain.Entities;
+﻿using infnet.SurveyQuestionnaire.Domain.Entities;
 using infnet.SurveyQuestionnaire.Domain.Repositories;
 using infnet.SurveyQuestionnaire.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -39,28 +38,6 @@ public class UserRepository : IUserRepository
     {
         var normalizedEmail = email.Trim().ToLowerInvariant();
         return await _context.Users.AnyAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
-    }
-
-    // Métodos com Specification (para queries complexas)
-    public async Task<User?> GetBySpecAsync(ISpecification<User> specification, CancellationToken cancellationToken = default)
-    {
-        return await SpecificationEvaluator
-            .GetQuery(_context.Users.AsQueryable(), specification)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<User>> GetAllBySpecAsync(ISpecification<User> specification, CancellationToken cancellationToken = default)
-    {
-        return await SpecificationEvaluator
-            .GetQuery(_context.Users.AsQueryable(), specification)
-            .ToListAsync(cancellationToken);
-    }
-
-    public async Task<int> CountAsync(ISpecification<User> specification, CancellationToken cancellationToken = default)
-    {
-        return await SpecificationEvaluator
-            .GetQueryForCount(_context.Users.AsQueryable(), specification)
-            .CountAsync(cancellationToken);
     }
 
     // Comandos

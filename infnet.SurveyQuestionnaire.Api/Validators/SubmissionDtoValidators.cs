@@ -20,21 +20,21 @@ public class CreateSubmissionRequestDtoValidator : AbstractValidator<CreateSubmi
      .NotEmpty()
          .WithMessage("At least one answer is required")
       .Must(answers => answers.Count <= 100)
-.WithMessage("Cannot submit more than 100 answers at once");
+      .WithMessage("Cannot submit more than 100 answers at once");
 
         RuleForEach(x => x.Answers)
-.ChildRules(answer =>
+      .ChildRules(answer =>
       {
-    answer.RuleFor(a => a.QuestionId)
-     .NotEmpty()
-  .WithMessage("Question ID is required");
+        answer.RuleFor(a => a.QuestionId)
+            .NotEmpty()
+            .WithMessage("Question ID is required");
 
-    answer.RuleFor(a => a.Answer)
-     .NotEmpty()
-     .WithMessage("Answer is required")
- .MaximumLength(5000)
-     .WithMessage("Answer cannot exceed 5000 characters");
-  });
+            answer.RuleFor(a => a.Answer)
+            .NotEmpty()
+             .WithMessage("Answer is required")
+             .MaximumLength(5000)
+            .WithMessage("Answer cannot exceed 5000 characters");
+      });
     }
 }
 
@@ -47,12 +47,12 @@ public class SubmissionAnswerDtoValidator : AbstractValidator<SubmissionAnswerDt
     {
         RuleFor(x => x.QuestionId)
             .NotEmpty()
-     .WithMessage("Question ID is required");
+            .WithMessage("Question ID is required");
 
-   RuleFor(x => x.Answer)
-.NotEmpty()
+        RuleFor(x => x.Answer)
+        .NotEmpty()
         .WithMessage("Answer is required")
-  .MaximumLength(5000)
-  .WithMessage("Answer cannot exceed 5000 characters");
+        .MaximumLength(5000)
+        .WithMessage("Answer cannot exceed 5000 characters");
     }
 }

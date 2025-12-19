@@ -3,12 +3,7 @@ using infnet.SurveyQuestionnaire.Domain.Common;
 namespace infnet.SurveyQuestionnaire.Domain.Entities;
 
 /// <summary>
-/// Representa uma resposta individual de uma questão - INTERNAL ENTITY
-/// 
-/// ?? Esta é uma ENTITY INTERNA do agregado Submission
-/// - Não pode ser acessada diretamente de fora do agregado
-/// - Só pode ser modificada através do Submission (Aggregate Root)
-/// - Não tem repository próprio
+/// Representa uma resposta individual de uma questão
 /// </summary>
 public sealed class SubmissionItem : Entity
 {
@@ -42,7 +37,7 @@ public sealed class SubmissionItem : Entity
     private SubmissionItem(Guid questionId, string answer, Guid? selectedOptionId) : base()
     {
         QuestionId = questionId;
-Answer = ValidateAndTrimAnswer(answer);
+        Answer = ValidateAndTrimAnswer(answer);
         SelectedOptionId = selectedOptionId;
     }
 
@@ -52,10 +47,10 @@ Answer = ValidateAndTrimAnswer(answer);
     /// <param name="questionId">ID da questão</param>
     /// <param name="answer">Resposta em texto</param>
     /// <param name="selectedOptionId">ID da opção selecionada (opcional)</param>
- internal static SubmissionItem Create(Guid questionId, string answer, Guid? selectedOptionId = null)
+    internal static SubmissionItem Create(Guid questionId, string answer, Guid? selectedOptionId = null)
     {
-     if (questionId == Guid.Empty)
-        throw new ArgumentException("Question ID cannot be empty", nameof(questionId));
+        if (questionId == Guid.Empty)
+            throw new ArgumentException("Question ID cannot be empty", nameof(questionId));
 
         return new SubmissionItem(questionId, answer, selectedOptionId);
     }
@@ -63,15 +58,13 @@ Answer = ValidateAndTrimAnswer(answer);
     private static string ValidateAndTrimAnswer(string answer)
     {
      if (string.IsNullOrWhiteSpace(answer))
-     throw new ArgumentException("Answer cannot be empty", nameof(answer));
+        throw new ArgumentException("Answer cannot be empty", nameof(answer));
 
         var trimmedAnswer = answer.Trim();
 
         if (trimmedAnswer.Length > _answerMaxLength)
-      throw new ArgumentException(
-        $"Answer cannot exceed {_answerMaxLength} characters",
-     nameof(answer));
+            throw new ArgumentException( $"Answer cannot exceed {_answerMaxLength} characters",nameof(answer));
 
         return trimmedAnswer;
-}
+    }
 }
