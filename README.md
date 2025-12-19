@@ -73,27 +73,12 @@ Projeto dividido em 5 camadas seguindo Clean Architecture:
 
 - .NET 9 SDK
 - SQL Server (LocalDB)
-- Azure Service Bus (opcional - para processamento assíncrono)
 
 ### Configurar o banco de dados
 
 ```bash
 cd infnet.SurveyQuestionnaire.Infrastructure.Data
 dotnet ef database update --startup-project ../infnet.SurveyQuestionnaire.Api
-```
-
-### Configurar appsettings.json
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=SurveyQuestionnaireDb;Trusted_Connection=True"
-  },
-  "AzureServiceBus": {
-    "ConnectionString": "sua-connection-string-aqui",
-    "DefaultQueueName": "submission-queue"
-  }
-}
 ```
 
 ### Executar a API
@@ -104,6 +89,8 @@ dotnet run
 ```
 
 Acesse: https://localhost:5001/swagger
+
+**Observação:** As configurações sensíveis (Azure Service Bus) já estão no User Secrets e não precisam ser configuradas manualmente.
 
 ---
 
@@ -123,7 +110,7 @@ Acesse: https://localhost:5001/swagger
 **Submissões**
 - POST /api/submissions - Responder questionário (Public)
 - GET /api/submissions/{id} - Buscar resposta
-- GET /api/submissions/questionnaire/{id} - Listar respostas (Admin)
+- GET /api/submissions/questionnaire/{id}` - Listar respostas (Admin)
 
 ---
 
