@@ -50,21 +50,24 @@ public class SubmissionConfiguration : IEntityTypeConfiguration<Submission>
 
         // Submission -> Questionnaire (Many-to-One)
     builder.HasOne<Questionnaire>()
-        .WithMany()
-            .HasForeignKey(s => s.QuestionnaireId)
+     .WithMany()
+   .HasForeignKey(s => s.QuestionnaireId)
     .OnDelete(DeleteBehavior.Restrict); // Não permite deletar questionário com submissions
 
-    // Submission -> User (Many-to-One)
+// Submission -> User (Many-to-One)
         builder.HasOne<User>()
       .WithMany()
-            .HasForeignKey(s => s.RespondentUserId)
+      .HasForeignKey(s => s.RespondentUserId)
         .OnDelete(DeleteBehavior.Restrict); // Não permite deletar usuário com submissions
 
     // Submission -> SubmissionItems (One-to-Many)
-        builder.HasMany<SubmissionItem>()
-            .WithOne()
-            .HasForeignKey(si => si.SubmissionId)
-            .OnDelete(DeleteBehavior.Cascade); // Deleta items junto com submission
+  // Usa o backing field "_items" porque Items é ReadOnly
+        builder.Metadata.FindNavigation(nameof(Submission.Items))!
+      .SetPropertyAccessMode(PropertyAccessMode.Field);
+      
+        builder.Navigation(nameof(Submission.Items))
+       .HasField("_items")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
 
    // ==================== Indexes ====================
 

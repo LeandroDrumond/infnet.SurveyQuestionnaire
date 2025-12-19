@@ -19,17 +19,12 @@ public class QuestionnairesController : ControllerBase
     private readonly ILogger<QuestionnairesController> _logger;
     private readonly IMapper _mapper;
 
-    public QuestionnairesController(
- IQuestionnaireService questionnaireService,
-    ILogger<QuestionnairesController> logger,
-        IMapper mapper)
+    public QuestionnairesController(IQuestionnaireService questionnaireService,ILogger<QuestionnairesController> logger,IMapper mapper)
     {
      _questionnaireService = questionnaireService;
         _logger = logger;
         _mapper = mapper;
     }
-
-    // ==================== Questionnaire Endpoints ====================
 
     /// <summary>
     /// Cria um novo questionário (apenas administradores)
@@ -44,40 +39,35 @@ public class QuestionnairesController : ControllerBase
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> CreateQuestionnaire(
-      [FromBody] CreateQuestionnaireRequestDto requestDto,
-    [FromHeader(Name = "X-User-Id")] Guid createdByUserId)
- {
-        _logger.LogInformation("Creating questionnaire: {Title} by user {UserId}", 
- requestDto.Title, createdByUserId);
+    public async Task<IActionResult> CreateQuestionnaire([FromBody] CreateQuestionnaireRequestDto requestDto,
+                                                        [FromHeader(Name = "X-User-Id")] Guid createdByUserId)
+    {
+       
 
         var request = _mapper.Map<CreateQuestionnaireRequest>(requestDto);
-     var response = await _questionnaireService.CreateQuestionnaireAsync(request, createdByUserId);
+        var response = await _questionnaireService.CreateQuestionnaireAsync(request, createdByUserId);
         var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
 
-   _logger.LogInformation("Questionnaire created with ID: {QuestionnaireId}", responseDto.Id);
+        _logger.LogInformation("Questionnaire created with ID: {QuestionnaireId}", responseDto.Id);
 
-        return CreatedAtAction(
-nameof(GetQuestionnaireById),
-new { id = responseDto.Id },
-    responseDto);
+        return CreatedAtAction(nameof(GetQuestionnaireById),new { id = responseDto.Id },responseDto);
     }
 
- /// <summary>
-  /// Obtém um questionário por ID (sem questões)
+    /// <summary>
+    /// Obtém um questionário por ID (sem questões)
     /// </summary>
     /// <param name="id">ID do questionário</param>
- /// <returns>Dados do questionário</returns>
-/// <response code="200">Questionário encontrado</response>
+    /// <returns>Dados do questionário</returns>
+    /// <response code="200">Questionário encontrado</response>
     /// <response code="404">Questionário não encontrado</response>
-[HttpGet("{id:guid}")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetQuestionnaireById(Guid id)
- {
-  var response = await _questionnaireService.GetQuestionnaireByIdAsync(id);
+    {
+        var response = await _questionnaireService.GetQuestionnaireByIdAsync(id);
         var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
-      return Ok(responseDto);
+       return Ok(responseDto);
     }
 
     /// <summary>
@@ -90,12 +80,12 @@ new { id = responseDto.Id },
     [HttpGet("{id:guid}/details")]
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
+    public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     {
       var response = await _questionnaireService.GetQuestionnaireWithQuestionsAsync(id);
-  var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
- return Ok(responseDto);
-  }
+      var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
+      return Ok(responseDto);
+    }
 
     /// <summary>
     /// Lista todos os questionários
@@ -106,30 +96,30 @@ public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     [ProducesResponseType(typeof(IEnumerable<QuestionnaireListResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllQuestionnaires()
     {
-  var response = await _questionnaireService.GetAllQuestionnairesAsync();
+        var response = await _questionnaireService.GetAllQuestionnairesAsync();
         var responseDto = _mapper.Map<IEnumerable<QuestionnaireListResponseDto>>(response);
- return Ok(responseDto);
- }
-
-    /// <summary>
- /// Lista questionários criados por um usuário específico
-    /// </summary>
-/// <param name="creatorId">ID do criador</param>
-    /// <returns>Lista de questionários</returns>
-    /// <response code="200">Lista retornada com sucesso</response>
-[HttpGet("by-creator/{creatorId:guid}")]
-    [ProducesResponseType(typeof(IEnumerable<QuestionnaireListResponseDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetQuestionnairesByCreator(Guid creatorId)
-  {
-        var response = await _questionnaireService.GetQuestionnairesByCreatorAsync(creatorId);
-        var responseDto = _mapper.Map<IEnumerable<QuestionnaireListResponseDto>>(response);
-     return Ok(responseDto);
+        return Ok(responseDto);
     }
 
     /// <summary>
-/// Lista todos os questionários publicados
+    /// Lista questionários criados por um usuário específico
     /// </summary>
-/// <returns>Lista de questionários publicados</returns>
+    /// <param name="creatorId">ID do criador</param>
+    /// <returns>Lista de questionários</returns>
+    /// <response code="200">Lista retornada com sucesso</response>
+    [HttpGet("by-creator/{creatorId:guid}")]
+    [ProducesResponseType(typeof(IEnumerable<QuestionnaireListResponseDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetQuestionnairesByCreator(Guid creatorId)
+    {
+        var response = await _questionnaireService.GetQuestionnairesByCreatorAsync(creatorId);
+        var responseDto = _mapper.Map<IEnumerable<QuestionnaireListResponseDto>>(response);
+        return Ok(responseDto);
+    }
+
+    /// <summary>
+    /// Lista todos os questionários publicados
+    /// </summary>
+    /// <returns>Lista de questionários publicados</returns>
     /// <response code="200">Lista retornada com sucesso</response>
  [HttpGet("published")]
     [ProducesResponseType(typeof(IEnumerable<QuestionnaireListResponseDto>), StatusCodes.Status200OK)]
@@ -143,9 +133,9 @@ public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     /// <summary>
     /// Atualiza um questionário (apenas em Draft)
     /// </summary>
-/// <param name="id">ID do questionário</param>
+    /// <param name="id">ID do questionário</param>
     /// <param name="requestDto">Novos dados</param>
- /// <param name="userId">ID do usuário</param>
+    /// <param name="userId">ID do usuário</param>
     /// <returns>Questionário atualizado</returns>
     /// <response code="200">Questionário atualizado</response>
     /// <response code="400">Dados inválidos ou questionário já publicado</response>
@@ -153,19 +143,16 @@ public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     /// <response code="404">Questionário não encontrado</response>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
- [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateQuestionnaire(
-     Guid id,
- [FromBody] UpdateQuestionnaireRequestDto requestDto,
-   [FromHeader(Name = "X-User-Id")] Guid userId)
- {
-        _logger.LogInformation("Updating questionnaire {QuestionnaireId} by user {UserId}", id, userId);
-
-   var request = _mapper.Map<UpdateQuestionnaireRequest>(requestDto);
-    var response = await _questionnaireService.UpdateQuestionnaireAsync(id, request, userId);
-    var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
+    public async Task<IActionResult> UpdateQuestionnaire(Guid id,[FromBody] UpdateQuestionnaireRequestDto requestDto,
+                                                        [FromHeader(Name = "X-User-Id")] Guid userId)
+    {
+        
+             var request = _mapper.Map<UpdateQuestionnaireRequest>(requestDto);
+             var response = await _questionnaireService.UpdateQuestionnaireAsync(id, request, userId);
+             var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
 
         return Ok(responseDto);
     }
@@ -183,49 +170,39 @@ public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteQuestionnaire(
- Guid id,
-        [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> DeleteQuestionnaire(Guid id,[FromHeader(Name = "X-User-Id")] Guid userId)
     {
-     _logger.LogInformation("Deleting questionnaire {QuestionnaireId} by user {UserId}", id, userId);
-
+     
       await _questionnaireService.DeleteQuestionnaireAsync(id, userId);
 
         return NoContent();
     }
 
- // ==================== Publish/Close Endpoints ====================
-
     /// <summary>
     /// Publica um questionário
     /// </summary>
-  /// <param name="id">ID do questionário</param>
+    /// <param name="id">ID do questionário</param>
     /// <param name="requestDto">Datas de coleta</param>
-  /// <param name="userId">ID do usuário</param>
- /// <returns>Questionário publicado</returns>
+    /// <param name="userId">ID do usuário</param>
+    /// <returns>Questionário publicado</returns>
     /// <response code="200">Questionário publicado</response>
     /// <response code="400">Dados inválidos ou questionário não está pronto</response>
-  /// <response code="401">Não autorizado</response>
- /// <response code="404">Questionário não encontrado</response>
- [HttpPost("{id:guid}/publish")]
+    /// <response code="401">Não autorizado</response>
+    /// <response code="404">Questionário não encontrado</response>
+    [HttpPost("{id:guid}/publish")]
     [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]
- [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PublishQuestionnaire(
-     Guid id,
-     [FromBody] PublishQuestionnaireRequestDto requestDto,
-   [FromHeader(Name = "X-User-Id")] Guid userId)
+    public async Task<IActionResult> PublishQuestionnaire(Guid id,[FromBody] PublishQuestionnaireRequestDto requestDto,
+                                                          [FromHeader(Name = "X-User-Id")] Guid userId)
     {
-        _logger.LogInformation("Publishing questionnaire {QuestionnaireId} by user {UserId}", id, userId);
+        
 
-     var request = _mapper.Map<PublishQuestionnaireRequest>(requestDto);
-  var response = await _questionnaireService.PublishQuestionnaireAsync(id, request, userId);
+        var request = _mapper.Map<PublishQuestionnaireRequest>(requestDto);
+        var response = await _questionnaireService.PublishQuestionnaireAsync(id, request, userId);
         var responseDto = _mapper.Map<QuestionnaireResponseDto>(response);
-
-      _logger.LogInformation("Questionnaire {QuestionnaireId} published successfully", id);
-
-    return Ok(responseDto);
+        return Ok(responseDto);
     }
 
     /// <summary>
@@ -236,7 +213,7 @@ public async Task<IActionResult> GetQuestionnaireWithQuestions(Guid id)
     /// <returns>Questionário fechado</returns>
     /// <response code="200">Questionário fechado</response>
     /// <response code="400">Questionário não está publicado</response>
- /// <response code="401">Não autorizado</response>
+    /// <response code="401">Não autorizado</response>
     /// <response code="404">Questionário não encontrado</response>
     [HttpPost("{id:guid}/close")]
 [ProducesResponseType(typeof(QuestionnaireResponseDto), StatusCodes.Status200OK)]

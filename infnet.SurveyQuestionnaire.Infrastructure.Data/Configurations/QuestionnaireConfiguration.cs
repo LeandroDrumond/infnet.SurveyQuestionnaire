@@ -39,22 +39,20 @@ public class QuestionnaireConfiguration : IEntityTypeConfiguration<Questionnaire
    .IsRequired();
 
         builder.Property(q => q.UpdatedAt)
- .IsRequired(false);
+      .IsRequired(false);
 
-        // Relacionamento com Questions
-  builder.HasMany(q => q.Questions)
-        .WithOne()
-         .HasForeignKey(question => question.QuestionnaireId)
-         .OnDelete(DeleteBehavior.Cascade);
+   builder.HasMany(q => q.Questions)
+     .WithOne()
+.HasForeignKey(question => question.QuestionnaireId)
+   .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
-   // Relacionamento com User (criador)
         builder.HasOne<User>()
    .WithMany()
-      .HasForeignKey(q => q.CreatedByUserId)
-      .OnDelete(DeleteBehavior.Restrict);
+   .HasForeignKey(q => q.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Índices
-    builder.HasIndex(q => q.CreatedByUserId);
+        builder.HasIndex(q => q.CreatedByUserId);
         builder.HasIndex(q => q.Status);
         builder.HasIndex(q => q.CreatedAt);
     }

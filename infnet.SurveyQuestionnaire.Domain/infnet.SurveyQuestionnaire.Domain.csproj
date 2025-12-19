@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Questionnaires\" />
+    <Folder Include="Questions\Exceptions\" />
+  </ItemGroup>
+
 </Project>

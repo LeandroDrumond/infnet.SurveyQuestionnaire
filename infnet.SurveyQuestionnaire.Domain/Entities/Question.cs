@@ -22,8 +22,9 @@ public sealed class Question : Entity
     public bool IsRequired { get; private set; }
     public bool IsMultipleChoice { get; private set; }
     
-    // ? Foreign Key (necessário para EF Core)
-    public Guid QuestionnaireId { get; private set; }
+    // ? Foreign Key - EF Core precisa poder setar
+    // Usa init para permitir que EF Core set durante materialização
+    public Guid QuestionnaireId { get; internal set; }
 
     /// <summary>
     /// Opções de resposta (apenas para questões de múltipla escolha)
@@ -51,6 +52,14 @@ public sealed class Question : Entity
     }
 
     /// <summary>
+    /// Seta o QuestionnaireId (INTERNAL - só chamado pelo Aggregate Root)
+    /// </summary>
+    internal void SetQuestionnaireId(Guid questionnaireId)
+    {
+        QuestionnaireId = questionnaireId;
+    }
+
+    /// <summary>
     /// Adiciona uma opção (INTERNAL - só chamado pelo Aggregate Root)
     /// </summary>
     internal void AddOption(string text, int order)
@@ -67,6 +76,10 @@ public sealed class Question : Entity
             throw new OptionAlreadyExistsException(Id, text);
 
         var option = Option.Create(text, order);
+    
+        // ? SOLUÇÃO: Setar FK antes de adicionar à coleção
+        option.SetQuestionId(Id);
+   
         _options.Add(option);
     }
 

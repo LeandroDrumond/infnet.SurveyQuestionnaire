@@ -1,0 +1,483 @@
+{
+	"info": {
+		"_postman_id": "survey-questionnaire-complete",
+		"name": "Survey Questionnaire - Complete Flow",
+		"description": "Collection completa para testar o fluxo de criação de questionário e submissão de respostas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7169",
+			"type": "string"
+		},
+		{
+			"key": "adminUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "publicUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "questionnaireId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question2Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "option1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "option2Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "submissionId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Setup - Criar Usuários",
+			"item": [
+				{
+					"name": "1.1 Criar Usuário Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('adminUserId', response.id);",
+									"  console.log('? Admin User ID:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@test.com\",\n  \"userType\": \"Administrator\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Criar Usuário Público",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"  const response = pm.response.json();",
+									"    pm.collectionVariables.set('publicUserId', response.id);",
+									"    console.log('? Public User ID:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Public User\",\n  \"email\": \"public@test.com\",\n\"userType\": \"Public\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Questionário - Criar e Configurar",
+			"item": [
+				{
+					"name": "2.1 Criar Questionário (Draft)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('questionnaireId', response.id);",
+									"    console.log('? Questionnaire ID:', response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Pesquisa de Satisfação 2024\",\n  \"description\": \"Avalie nossos serviços\",\n  \"collectionStart\": \"2024-12-19T00:00:00Z\",\n  \"collectionEnd\": \"2025-12-31T23:59:59Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/questionnaires",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questionnaires"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Adicionar Questão 1 (Múltipla Escolha)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    const questions = response.questions;",
+									"    if (questions && questions.length > 0) {",
+									"    pm.collectionVariables.set('question1Id', questions[questions.length - 1].id);",
+									"     console.log('? Question 1 ID:', questions[questions.length - 1].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Como você avalia nosso atendimento?\",\n  \"isRequired\": true,\n  \"isMultipleChoice\": true,\n  \"options\": [\n    {\"text\": \"Excelente\", \"order\": 1},\n    {\"text\": \"Bom\", \"order\": 2},\n    {\"text\": \"Regular\", \"order\": 3},\n    {\"text\": \"Ruim\", \"order\": 4}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}/questions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questionnaires", "{{questionnaireId}}", "questions"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Adicionar Opções na Questão 1 (? Já criadas)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    const questions = response.questions || [];",
+									"    const question1 = questions.find(q => q.id === pm.collectionVariables.get('question1Id'));",
+									"    if (question1 && question1.options && question1.options.length >= 2) {",
+									"  pm.collectionVariables.set('option1Id', question1.options[0].id);",
+									" pm.collectionVariables.set('option2Id', question1.options[1].id);",
+									"     console.log('? Option 1 ID:', question1.options[0].id);",
+									"      console.log('? Option 2 ID:', question1.options[1].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questionnaires", "{{questionnaireId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Adicionar Questão 2 (Texto Livre)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    const questions = response.questions;",
+									"    if (questions && questions.length > 0) {",
+									"      pm.collectionVariables.set('question2Id', questions[questions.length - 1].id);",
+									" console.log('? Question 2 ID:', questions[questions.length - 1].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Deixe seus comentários e sugestões:\",\n  \"isRequired\": false,\n  \"isMultipleChoice\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}/questions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questionnaires", "{{questionnaireId}}", "questions"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Publicar Questionário",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"collectionStart\": \"2024-12-19T00:00:00Z\",\n  \"collectionEnd\": \"2025-12-31T23:59:59Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}/publish",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "questionnaires", "{{questionnaireId}}", "publish"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Submission - Responder Questionário",
+			"item": [
+				{
+					"name": "3.1 Criar Submission (Resposta)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 202) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('submissionId', response.id);",
+									"    console.log('? Submission ID:', response.id);",
+									"    console.log('?? Status:', response.status);",
+									"    console.log('? Mensagem enviada para Service Bus!');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-User-Id",
+								"value": "{{publicUserId}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"questionnaireId\": \"{{questionnaireId}}\",\n  \"answers\": [\n    {\n      \"questionId\": \"{{question1Id}}\",\n \"answer\": \"Excelente\",\n  \"selectedOptionId\": \"{{option1Id}}\"\n    },\n    {\n      \"questionId\": \"{{question2Id}}\",\n      \"answer\": \"Atendimento muito bom! Parabéns a toda equipe.\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Consultar Status da Submission",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{publicUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions/{{submissionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions", "{{submissionId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Ver Submission Completa (com respostas)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{publicUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions/{{submissionId}}/items",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions", "{{submissionId}}", "items"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Admin - Visualizar Respostas",
+			"item": [
+				{
+					"name": "4.1 Listar Submissions do Questionário",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions/questionnaire/{{questionnaireId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions", "questionnaire", "{{questionnaireId}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Contar Submissions do Questionário",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{adminUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions/questionnaire/{{questionnaireId}}/count",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions", "questionnaire", "{{questionnaireId}}", "count"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. User - Minhas Submissions",
+			"item": [
+				{
+					"name": "5.1 Listar Minhas Submissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "{{publicUserId}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/submissions/my",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "submissions", "my"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

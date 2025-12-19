@@ -20,8 +20,9 @@ public sealed class Option : Entity
     public string Text { get; private init; } = string.Empty;
     public int Order { get; private init; }
     
-    // ? Foreign Key (necessário para EF Core)
-    public Guid QuestionId { get; private set; }
+    // ? Foreign Key - EF Core precisa poder setar
+    // Usa internal set para permitir que EF Core configure durante materialização
+    public Guid QuestionId { get; internal set; }
 
     // EF Constructor
     private Option()
@@ -39,7 +40,15 @@ public sealed class Option : Entity
     /// </summary>
     internal static Option Create(string text, int order)
     {
-    return new Option(text, order);
+        return new Option(text, order);
+    }
+
+    /// <summary>
+    /// Seta o QuestionId (INTERNAL - só chamado por Question)
+    /// </summary>
+    internal void SetQuestionId(Guid questionId)
+    {
+        QuestionId = questionId;
     }
 
     private static string ValidateAndTrimText(string text)

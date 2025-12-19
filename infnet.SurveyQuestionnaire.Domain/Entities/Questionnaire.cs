@@ -56,6 +56,10 @@ public sealed class Questionnaire : Entity
             throw new QuestionnaireCannotModifyPublishedException(Id);
 
         var question = Question.Create(text, isRequired, isMultipleChoice);
+        
+        // ? SOLUÇÃO: Setar FK antes de adicionar à coleção
+        question.SetQuestionnaireId(Id);
+        
         _questions.Add(question);
         SetUpdatedAt();
 
@@ -76,7 +80,10 @@ public sealed class Questionnaire : Entity
 
         // Cria questão de múltipla escolha
         var question = Question.Create(text, isRequired, isMultipleChoice: true);
-        
+      
+        // ? SOLUÇÃO: Setar FK antes de adicionar opções
+        question.SetQuestionnaireId(Id);
+   
         // Adiciona todas as opções
         foreach (var (optionText, order) in options)
         {

@@ -4,7 +4,7 @@ using infnet.SurveyQuestionnaire.Domain.Entities;
 namespace infnet.SurveyQuestionnaire.Domain.Repositories;
 
 /// <summary>
-/// Interface do repositório de questionários
+/// Repositório para o agregado Questionnaire
 /// </summary>
 public interface IQuestionnaireRepository
 {

@@ -151,48 +151,46 @@ public class SubmissionService : ISubmissionService
 
             // 2. Marcar como em processamento
      submission.StartProcessing();
-     _submissionRepository.Update(submission);
-      await _unitOfWork.SaveChangesAsync();
+        // ? EF Core tracking automático (submission já está tracked)
+   await _unitOfWork.SaveChangesAsync();
 
-  // 3. Buscar questionário com questões
-    var questionnaire = await _questionnaireRepository.GetByIdWithQuestionsAsync(message.QuestionnaireId)
-?? throw new KeyNotFoundException($"Questionnaire with ID '{message.QuestionnaireId}' not found");
+    // 3. Buscar questionário com questões
+      var questionnaire = await _questionnaireRepository.GetByIdWithQuestionsAsync(message.QuestionnaireId)
+    ?? throw new KeyNotFoundException($"Questionnaire with ID '{message.QuestionnaireId}' not found");
 
-            // 4. Validar novamente (segurança)
-      ValidateQuestionnaireAvailability(questionnaire);
+     // 4. Validar novamente (segurança)
+            ValidateQuestionnaireAvailability(questionnaire);
        ValidateAnswers(questionnaire, message.Answers.Select(a => new SubmissionAnswerRequest
-      {
-         QuestionId = a.QuestionId,
+ {
+     QuestionId = a.QuestionId,
             Answer = a.Answer,
-SelectedOptionId = a.SelectedOptionId
-   }).ToList());
+     SelectedOptionId = a.SelectedOptionId
+      }).ToList());
 
-       // 5. Adicionar items
-  foreach (var answer in message.Answers)
-      {
-submission.AddItem(answer.QuestionId, answer.Answer, answer.SelectedOptionId);
-   }
+      // 5. Adicionar items (entidades novas)
+     foreach (var answer in message.Answers)
+       {
+        submission.AddItem(answer.QuestionId, answer.Answer, answer.SelectedOptionId);
+         }
 
      // 6. Marcar como completa
        submission.Complete();
 
- // 7. Salvar
-      _submissionRepository.Update(submission);
-  await _unitOfWork.SaveChangesAsync();
-    }
+            _submissionRepository.Update(submission);
+            await _unitOfWork.SaveChangesAsync();
+        }
         catch (Exception)
-    {
-  // Marcar como falha
-       var submission = await _submissionRepository.GetByIdAsync(message.SubmissionId);
-            if (submission != null)
-       {
-       submission.Fail("Error processing submission");
-       _submissionRepository.Update(submission);
- await _unitOfWork.SaveChangesAsync();
-  }
+        {
+   var submission = await _submissionRepository.GetByIdAsync(message.SubmissionId);
+         if (submission != null)
+      {
+    submission.Fail("Error processing submission");
+  _submissionRepository.Update(submission);
+          await _unitOfWork.SaveChangesAsync();
+    }
 
-     throw; // Re-throw para Service Bus fazer retry
-  }
+    throw;
+    }
     }
 
     // ==================== Private Validation Methods ====================

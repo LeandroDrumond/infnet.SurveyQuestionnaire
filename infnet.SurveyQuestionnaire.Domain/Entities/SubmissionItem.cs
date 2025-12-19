@@ -17,7 +17,7 @@ public sealed class SubmissionItem : Entity
     /// <summary>
     /// ID da questão respondida
     /// </summary>
-    public Guid QuestionId { get; private set; }
+    public Guid QuestionId { get; internal set; }
 
     /// <summary>
     /// Resposta em texto (pode ser texto livre ou o texto da opção selecionada)
@@ -27,12 +27,12 @@ public sealed class SubmissionItem : Entity
     /// <summary>
     /// ID da opção selecionada (apenas para questões de múltipla escolha)
     /// </summary>
-    public Guid? SelectedOptionId { get; private set; }
+    public Guid? SelectedOptionId { get; internal set; }
 
     /// <summary>
     /// Foreign Key para Submission (necessário para EF Core)
     /// </summary>
-    public Guid SubmissionId { get; private set; }
+    public Guid SubmissionId { get; internal set; }
 
     // EF Core Constructor
     private SubmissionItem()

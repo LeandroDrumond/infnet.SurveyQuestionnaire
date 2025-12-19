@@ -42,21 +42,21 @@ public class SubmissionItemConfiguration : IEntityTypeConfiguration<SubmissionIt
 
    // ==================== Relationships ====================
 
+        // SubmissionItem -> Submission (Many-to-One)
+    // Não precisa configurar aqui, já está configurado no SubmissionConfiguration
+
         // SubmissionItem -> Question (Many-to-One)
         builder.HasOne<Question>()
      .WithMany()
-            .HasForeignKey(si => si.QuestionId)
-       .OnDelete(DeleteBehavior.Restrict); // Não permite deletar questão com respostas
+       .HasForeignKey(si => si.QuestionId)
+  .OnDelete(DeleteBehavior.Restrict); // Não permite deletar questão com respostas
 
         // SubmissionItem -> Option (Many-to-One) - Opcional
         builder.HasOne<Option>()
-      .WithMany()
-         .HasForeignKey(si => si.SelectedOptionId)
-        .OnDelete(DeleteBehavior.Restrict) // Não permite deletar opção com respostas
+ .WithMany()
+   .HasForeignKey(si => si.SelectedOptionId)
+      .OnDelete(DeleteBehavior.Restrict) // Não permite deletar opção com respostas
     .IsRequired(false);
-
-  // SubmissionItem -> Submission (Many-to-One)
-        // Configurado no SubmissionConfiguration
 
         // ==================== Indexes ====================
 

@@ -1,4 +1,4 @@
-using infnet.SurveyQuestionnaire.Domain;
+ï»¿using infnet.SurveyQuestionnaire.Domain;
 using infnet.SurveyQuestionnaire.Domain.Common;
 using infnet.SurveyQuestionnaire.Domain.Entities;
 using infnet.SurveyQuestionnaire.Domain.Repositories;
@@ -12,81 +12,119 @@ public class QuestionnaireRepository : IQuestionnaireRepository
     private readonly SurveyQuestionnaireDbContext _context;
 
     public QuestionnaireRepository(SurveyQuestionnaireDbContext context)
-  {
-  _context = context;
+    {
+        _context = context;
     }
 
-    // Métodos básicos (mantidos para compatibilidade)
     public async Task<Questionnaire?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-   return await _context.Questionnaires.FindAsync([id], cancellationToken);
+        return await _context.Questionnaires.FindAsync([id], cancellationToken);
     }
 
     public async Task<Questionnaire?> GetByIdWithQuestionsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Questionnaires
-  .Include(q => q.Questions)
-     .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
- }
+ .AsNoTracking()
+            .Include(q => q.Questions)
+      .ThenInclude(q => q.Options)
+ .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
+    }
 
     public async Task<IEnumerable<Questionnaire>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Questionnaires
-.OrderByDescending(q => q.CreatedAt)
-  .ToListAsync(cancellationToken);
+         .OrderByDescending(q => q.CreatedAt)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetByCreatorIdAsync(Guid createdByUserId, CancellationToken cancellationToken = default)
     {
-        return await _context.Questionnaires
-    .Where(q => q.CreatedByUserId == createdByUserId)
-        .OrderByDescending(q => q.CreatedAt)
-     .ToListAsync(cancellationToken);
+ return await _context.Questionnaires
+            .Where(q => q.CreatedByUserId == createdByUserId)
+            .OrderByDescending(q => q.CreatedAt)
+   .ToListAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetPublishedAsync(CancellationToken cancellationToken = default)
     {
-      return await _context.Questionnaires
-.Where(q => q.Status == QuestionnaireStatus.Published)
-   .OrderByDescending(q => q.CreatedAt)
-        .ToListAsync(cancellationToken);
+     return await _context.Questionnaires
+       .Where(q => q.Status == QuestionnaireStatus.Published)
+       .OrderByDescending(q => q.CreatedAt)
+    .ToListAsync(cancellationToken);
     }
 
-    // Métodos com Specification (para queries complexas)
     public async Task<Questionnaire?> GetBySpecAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
     {
         return await SpecificationEvaluator
-  .GetQuery(_context.Questionnaires.AsQueryable(), specification)
+            .GetQuery(_context.Questionnaires.AsQueryable(), specification)
       .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IEnumerable<Questionnaire>> GetAllBySpecAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
     {
-  return await SpecificationEvaluator
+return await SpecificationEvaluator
             .GetQuery(_context.Questionnaires.AsQueryable(), specification)
-      .ToListAsync(cancellationToken);
+        .ToListAsync(cancellationToken);
     }
 
     public async Task<int> CountAsync(ISpecification<Questionnaire> specification, CancellationToken cancellationToken = default)
     {
-    return await SpecificationEvaluator
-            .GetQueryForCount(_context.Questionnaires.AsQueryable(), specification)
-          .CountAsync(cancellationToken);
+        return await SpecificationEvaluator
+     .GetQueryForCount(_context.Questionnaires.AsQueryable(), specification)
+  .CountAsync(cancellationToken);
     }
 
-    // Comandos
     public void Add(Questionnaire questionnaire)
     {
-   _context.Questionnaires.Add(questionnaire);
+        _context.Questionnaires.Add(questionnaire);
     }
 
     public void Update(Questionnaire questionnaire)
     {
-        _context.Questionnaires.Update(questionnaire);
-  }
+      
+        var existingQuestionnaire = _context.Questionnaires
+                                    .AsNoTracking()
+                                    .Include(q => q.Questions)
+                                    .ThenInclude(q => q.Options)
+                                    .FirstOrDefault(q => q.Id == questionnaire.Id) ?? throw new InvalidOperationException($"Questionnaire {questionnaire.Id} not found.");
+           
+            _context.Questionnaires.Update(questionnaire);
+            _context.Entry(questionnaire).State = EntityState.Modified;
+
+        var existingQuestionIds = existingQuestionnaire.Questions.Select(q => q.Id).ToHashSet();
+        var existingOptionIds = existingQuestionnaire.Questions.SelectMany(q => q.Options).Select(o => o.Id).ToHashSet();
+
+                 foreach (var question in questionnaire.Questions)
+                 {
+                         if (existingQuestionIds.Contains(question.Id))
+                         {
+                        
+                          _context.Entry(question).State = EntityState.Modified;
+                         }               
+                        else
+                        {
+        
+                          _context.Entry(question).State = EntityState.Added;
+                        }
+
+            
+                    foreach (var option in question.Options)
+                    {
+                        if (existingOptionIds.Contains(option.Id))
+                        {
+  
+                             _context.Entry(option).State = EntityState.Modified;
+                        }
+                        else
+                        {
+                            _context.Entry(option).State = EntityState.Added;
+                        }
+                    }
+                 }
+    }
 
     public void Remove(Questionnaire questionnaire)
     {
-      _context.Questionnaires.Remove(questionnaire);
+        _context.Questionnaires.Remove(questionnaire);
     }
 }

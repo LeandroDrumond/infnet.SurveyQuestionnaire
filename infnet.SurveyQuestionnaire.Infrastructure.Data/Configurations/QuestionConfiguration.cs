@@ -31,15 +31,14 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
     .IsRequired();
 
    builder.Property(q => q.UpdatedAt)
-       .IsRequired(false);
+      .IsRequired(false);
 
-      // Relacionamento com Options
-        builder.HasMany(q => q.Options)
-  .WithOne()
-      .HasForeignKey(o => o.QuestionId)
-            .OnDelete(DeleteBehavior.Cascade);
+     builder.HasMany(q => q.Options)
+         .WithOne()
+       .HasForeignKey(o => o.QuestionId)
+.IsRequired()
+     .OnDelete(DeleteBehavior.Cascade);
 
-        // Índices
         builder.HasIndex(q => q.QuestionnaireId);
-    }
+  }
 }

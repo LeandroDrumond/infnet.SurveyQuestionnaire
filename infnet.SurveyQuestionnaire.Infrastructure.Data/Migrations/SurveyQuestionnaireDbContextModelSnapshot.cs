@@ -139,6 +139,95 @@ namespace infnet.SurveyQuestionnaire.Infrastructure.Data.Migrations
                     b.ToTable("Questionnaires", (string)null);
                 });
 
+            modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.Submission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("QuestionnaireId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RespondentUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionnaireId")
+                        .HasDatabaseName("IX_Submissions_QuestionnaireId");
+
+                    b.HasIndex("RespondentUserId")
+                        .HasDatabaseName("IX_Submissions_RespondentUserId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Submissions_Status");
+
+                    b.HasIndex("SubmittedAt")
+                        .HasDatabaseName("IX_Submissions_SubmittedAt");
+
+                    b.HasIndex("QuestionnaireId", "RespondentUserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Submissions_QuestionnaireId_RespondentUserId");
+
+                    b.ToTable("Submissions", (string)null);
+                });
+
+            modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.SubmissionItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SelectedOptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId")
+                        .HasDatabaseName("IX_SubmissionItems_QuestionId");
+
+                    b.HasIndex("SelectedOptionId")
+                        .HasDatabaseName("IX_SubmissionItems_SelectedOptionId");
+
+                    b.HasIndex("SubmissionId")
+                        .HasDatabaseName("IX_SubmissionItems_SubmissionId");
+
+                    b.ToTable("SubmissionItems", (string)null);
+                });
+
             modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -200,6 +289,41 @@ namespace infnet.SurveyQuestionnaire.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.Submission", b =>
+                {
+                    b.HasOne("infnet.SurveyQuestionnaire.Domain.Entities.Questionnaire", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionnaireId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("infnet.SurveyQuestionnaire.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("RespondentUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.SubmissionItem", b =>
+                {
+                    b.HasOne("infnet.SurveyQuestionnaire.Domain.Entities.Question", null)
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("infnet.SurveyQuestionnaire.Domain.Entities.Option", null)
+                        .WithMany()
+                        .HasForeignKey("SelectedOptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("infnet.SurveyQuestionnaire.Domain.Entities.Submission", null)
+                        .WithMany("Items")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.User", b =>
                 {
                     b.OwnsOne("infnet.SurveyQuestionnaire.Domain.Users.ValueObjects.Email", "Email", b1 =>
@@ -218,7 +342,7 @@ namespace infnet.SurveyQuestionnaire.Infrastructure.Data.Migrations
                             b1.HasIndex("Value")
                                 .IsUnique();
 
-                            b1.ToTable("Users");
+                            b1.ToTable("Users", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");
@@ -236,6 +360,11 @@ namespace infnet.SurveyQuestionnaire.Infrastructure.Data.Migrations
             modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.Questionnaire", b =>
                 {
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("infnet.SurveyQuestionnaire.Domain.Entities.Submission", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }
