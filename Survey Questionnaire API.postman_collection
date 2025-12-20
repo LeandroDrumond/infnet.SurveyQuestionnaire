@@ -1,0 +1,687 @@
+{
+	"info": {
+		"_postman_id": "54535272-f2ba-49c5-90d6-51a0b7cefd44",
+		"name": "Survey Questionnaire API - Complete Flow",
+		"description": "Collection completa: Criar Admin ? Criar Public User ? Criar Question�rio ? Adicionar Quest�es ? Publicar ? Criar Submission ? Consultar Respostas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9688225"
+	},
+	"item": [
+		{
+			"name": "Setup - Create Admin User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set('adminUserId', jsonData.id);",
+							"    console.log('? Admin User Created - ID:', jsonData.id);",
+							"    console.log('   Name:', jsonData.name);",
+							"    console.log('   Email:', jsonData.email);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin3@surveyquest.com\",\n  \"userType\": \"Administrator\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "Cria o usu�rio administrador que poder� criar e gerenciar question�rios"
+			},
+			"response": []
+		},
+		{
+			"name": "Setup - Create Public User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set('publicUserId', jsonData.id);",
+							"    console.log('? Public User Created - ID:', jsonData.id);",
+							"    console.log('   Name:', jsonData.name);",
+							"    console.log('   Email:', jsonData.email);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"JoaoTeste Silva\",\n  \"email\": \"joaoTesteTeste.silva@email.com\",\n  \"userType\": \"Public\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "Cria um usu�rio p�blico que poder� responder question�rios"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Questionnaire",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    var jsonData = pm.response.json();",
+							"  pm.collectionVariables.set('questionnaireId', jsonData.id);",
+							"    console.log('? Questionnaire Created - ID:', jsonData.id);",
+							"    console.log('   Title:', jsonData.title);",
+							"    console.log('   Status:', jsonData.status);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}",
+						"description": "Admin User ID"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Pesquisa de Presidente 2026\",\n  \"description\": \"Pesquisa para avaliar inteção de votos\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/questionnaires",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"questionnaires"
+					]
+				},
+				"description": "Cria um novo question�rio (apenas Admin)"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Question - Multiple Choice",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set('question1Id', jsonData.id);",
+							"    if (jsonData.options && jsonData.options.length > 0) {",
+							"        pm.collectionVariables.set('option1Id', jsonData.options[0].id);",
+							"        pm.collectionVariables.set('option2Id', jsonData.options[1].id);",
+							"    }",
+							"    console.log('? Question 1 Added - ID:', jsonData.id);",
+							"    console.log('   Text:', jsonData.text);",
+							"    console.log('   Type: Multiple Choice');",
+							"    console.log('   Options:', jsonData.options.length);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"text\": \"Quem você votaria para presidente?\",\n  \"isRequired\": true,\n  \"isMultipleChoice\": true,\n  \"options\": [\n    {\n      \"text\": \"Joazinho\",\n      \"order\": 1\n    },\n{\n      \"text\": \"Mariazinha\",\n  \"order\": 2\n    },\n    {\n   \"text\": \"Seu Ze\",\n      \"order\": 3\n    },\n    {\n      \"text\": \"Seu Pedro\",\n      \"order\": 4\n    }\n  ]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}/questions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"questionnaires",
+						"{{questionnaireId}}",
+						"questions"
+					]
+				},
+				"description": "Adiciona uma quest�o de m�ltipla escolha ao question�rio"
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Questionnaire",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Questionnaire Published!');",
+							"    console.log(' Status:', jsonData.status);",
+							"    console.log('   Collection Start:', jsonData.collectionStart);",
+							"    console.log('   Collection End:', jsonData.collectionEnd);",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"collectionStart\": \"2025-12-19T00:00:00Z\",\n  \"collectionEnd\": \"2025-12-31T23:59:59Z\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}/publish",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"questionnaires",
+						"{{questionnaireId}}",
+						"publish"
+					]
+				},
+				"description": "Publica o question�rio tornando-o dispon�vel para coleta de respostas"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Published Questionnaires",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Published Questionnaires:', jsonData.length);",
+							"    jsonData.forEach(function(q, i) {",
+							"        console.log(`   ${i+1}. ${q.title} (${q.status})`);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/questionnaires/published",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"questionnaires",
+						"published"
+					]
+				},
+				"description": "Lista todos os question�rios publicados e dispon�veis para resposta"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Submission (Public User)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 202) {",
+							"    var jsonData = pm.response.json();",
+							"    pm.collectionVariables.set('submissionId', jsonData.id);",
+							"    console.log('? Submission Created - ID:', jsonData.id);",
+							"    console.log('   Status:', jsonData.status);",
+							"    console.log('   ? Processing asynchronously via Azure Function...');",
+							"    console.log('   ?? Wait a few seconds then check submission details');",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{publicUserId}}",
+						"description": "Public User ID"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"questionnaireId\": \"{{questionnaireId}}\",\n    \"answers\": [\n        {\n            \"questionId\": \"{{question1Id}}\",\n            \"selectedOptionId\": \"{{option1Id}}\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/submissions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"submissions"
+					]
+				},
+				"description": "Cria uma submission (resposta ao question�rio) - Processado assincronamente via Azure Function"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Submission by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Submission Details:');",
+							"    console.log('   ID:', jsonData.id);",
+							"    console.log('   Status:', jsonData.status);",
+							"    console.log('   Submitted At:', jsonData.submittedAt);",
+							"    if (jsonData.status === 'Completed') {",
+							"     console.log('   ? Processing completed successfully!');",
+							"    } else if (jsonData.status === 'Processing') {",
+							" console.log('   ? Still processing...');",
+							"    } else if (jsonData.status === 'Failed') {",
+							"        console.log('   ? Processing failed:', jsonData.failureReason);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{publicUserId}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/submissions/{{submissionId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"submissions",
+						"{{submissionId}}"
+					]
+				},
+				"description": "Busca uma submission por ID (sem os items/respostas)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Submission with Items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Submission with Items:');",
+							"    console.log('   Status:', jsonData.status);",
+							"    if (jsonData.items && jsonData.items.length > 0) {",
+							"     console.log('   Answers:', jsonData.items.length);",
+							"        jsonData.items.forEach(function(item, i) {",
+							"  console.log(`   ${i+1}. ${item.answer}`);",
+							"        });",
+							"    } else {",
+							"        console.log('   ?? No items yet (still processing or failed)');",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{publicUserId}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/submissions/{{submissionId}}/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"submissions",
+						"{{submissionId}}",
+						"items"
+					]
+				},
+				"description": "Busca uma submission com todas as respostas (items)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Questionnaire Submissions (Admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Questionnaire Submissions:', jsonData.length);",
+							"    jsonData.forEach(function(s, i) {",
+							"    console.log(`   ${i+1}. Submission ${s.id.substring(0,8)}... - Status: ${s.status}`);",
+							"});",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}",
+						"description": "Admin User ID"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/submissions/questionnaire/{{questionnaireId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"submissions",
+						"questionnaire",
+						"{{questionnaireId}}"
+					]
+				},
+				"description": "Lista todas as submissions de um question�rio (apenas Admin ou Creator)"
+			},
+			"response": []
+		},
+		{
+			"name": "Count Questionnaire Submissions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('? Total Submissions:', jsonData.count);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/submissions/questionnaire/{{questionnaireId}}/count",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"submissions",
+						"questionnaire",
+						"{{questionnaireId}}",
+						"count"
+					]
+				},
+				"description": "Conta o n�mero total de submissions de um question�rio"
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('Total Users:', jsonData.length);",
+							"    jsonData.forEach(function(u) {",
+							"        console.log(`  - ${u.name} (${u.userType})`);",
+							"  });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "Lista todos os usu�rios do sistema"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Questionnaire by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    console.log('Questionnaire:', jsonData.title);",
+							"    console.log('Status:', jsonData.status);",
+							"    console.log('Questions:', jsonData.questions ? jsonData.questions.length : 0);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{adminUserId}}"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/questionnaires/{{questionnaireId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"questionnaires",
+						"{{questionnaireId}}"
+					]
+				},
+				"description": "Busca um question�rio por ID com todas as quest�es"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:5001",
+			"type": "string"
+		},
+		{
+			"key": "adminUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "publicUserId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "questionnaireId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "question2Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "option1Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "option2Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "submissionId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

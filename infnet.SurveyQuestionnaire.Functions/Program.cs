@@ -5,7 +5,6 @@ using infnet.SurveyQuestionnaire.Domain.Repositories;
 using infnet.SurveyQuestionnaire.Infrastructure.Data;
 using infnet.SurveyQuestionnaire.Infrastructure.Data.Context;
 using infnet.SurveyQuestionnaire.Infrastructure.Data.Repositories;
-using infnet.SurveyQuestionnaire.Infrastructure.Data.ServiceBus;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -36,11 +35,9 @@ builder.Services.AddDbContext<SurveyQuestionnaireDbContext>(options =>
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IQuestionnaireRepository, QuestionnaireRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
-builder.Services.AddSingleton<IServiceBusPublisher, AzureServiceBusPublisher>();
-builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+builder.Services.AddScoped<ISubmissionProcessor, SubmissionProcessor>();
 
 builder.Build().Run();

@@ -17,14 +17,22 @@ public class SubmissionService : ISubmissionService
     private readonly IQuestionnaireRepository _questionnaireRepository;
     private readonly IUserRepository _userRepository;
     private readonly IServiceBusPublisher _serviceBusPublisher;
+    private readonly ISubmissionProcessor _submissionProcessor;
     private readonly IUnitOfWork _unitOfWork;
 
-    public SubmissionService(ISubmissionRepository submissionRepository, IQuestionnaireRepository questionnaireRepository, IUserRepository userRepository,
-                             IServiceBusPublisher serviceBusPublisher, IUnitOfWork unitOfWork) {
+    public SubmissionService(
+        ISubmissionRepository submissionRepository,
+        IQuestionnaireRepository questionnaireRepository,
+        IUserRepository userRepository,
+        IServiceBusPublisher serviceBusPublisher,
+        ISubmissionProcessor submissionProcessor,
+        IUnitOfWork unitOfWork)
+    {
         _submissionRepository = submissionRepository;
         _questionnaireRepository = questionnaireRepository;
         _userRepository = userRepository;
         _serviceBusPublisher = serviceBusPublisher;
+        _submissionProcessor = submissionProcessor;
         _unitOfWork = unitOfWork;
     }
 
@@ -117,90 +125,10 @@ public class SubmissionService : ISubmissionService
     }
 
 
-    public async Task ProcessSubmissionAsync(SubmissionMessage message) 
+    public async Task ProcessSubmissionAsync(SubmissionMessage message)
     {
-        try 
-        {
-            var submission = await LoadSubmissionForProcessingAsync(message.SubmissionId);
-
-            if (ShouldSkipProcessing(submission))
-                return;
-
-            if (await TryCompletePartialSubmissionAsync(submission))
-                return;
-
-            await ResetSubmissionIfNecessaryAsync(submission);
-            await StartAndProcessSubmissionAsync(submission, message.Answers);
-            await CompleteSubmissionAsync(submission);
-        }
-        catch (Exception) {
-            await HandleProcessingFailureAsync(message.SubmissionId);
-            throw;
-        }
-    }
-
-    private async Task<Submission> LoadSubmissionForProcessingAsync(Guid submissionId) 
-    {
-        return await _submissionRepository.GetByIdWithItemsAsync(submissionId)
-                ?? throw new SubmissionNotFoundException(submissionId);
-    }
-
-    private static bool ShouldSkipProcessing(Submission submission) 
-    {
-        return submission.Status == SubmissionStatus.Completed;
-    }
-
-    private async Task<bool> TryCompletePartialSubmissionAsync(Submission submission) 
-    {
-        if (submission.Status != SubmissionStatus.Processing || !submission.Items.Any())
-            return false;
-
-        submission.Complete();
-        _submissionRepository.Update(submission);
-        await _unitOfWork.SaveChangesAsync();
-        return true;
-    }
-
-    private async Task ResetSubmissionIfNecessaryAsync(Submission submission) 
-    {
-        if (submission.Status == SubmissionStatus.Processing || submission.Status == SubmissionStatus.Failed) 
-        {
-            submission.ResetToPending();
-            await _unitOfWork.SaveChangesAsync();
-        }
-    }
-
-    private async Task StartAndProcessSubmissionAsync(Submission submission, List<SubmissionAnswerMessage> answers) 
-    {
-       
-        foreach (var answer in answers) 
-        {
-            submission.AddItem(answer.QuestionId, answer.Answer, answer.SelectedOptionId);
-        }
-
-        submission.StartProcessing();
-
-        _submissionRepository.Update(submission);
-        await _unitOfWork.SaveChangesAsync();
-    }
-
-    private async Task CompleteSubmissionAsync(Submission submission) 
-    {
-        submission.Complete();
-        _submissionRepository.Update(submission);
-        await _unitOfWork.SaveChangesAsync();
-    }
-
-    private async Task HandleProcessingFailureAsync(Guid submissionId) 
-    {
-        var submission = await _submissionRepository.GetByIdAsync(submissionId);
-
-        if (submission != null && submission.Status != SubmissionStatus.Failed) 
-        {
-            submission.Fail("Error processing submission");
-            _submissionRepository.Update(submission);
-            await _unitOfWork.SaveChangesAsync();
-        }
+        // ✅ Delega para o Processor dedicado
+        await _submissionProcessor.ProcessSubmissionAsync(message);
     }
 
     private static void ValidateQuestionnaireAvailability(Questionnaire questionnaire) 

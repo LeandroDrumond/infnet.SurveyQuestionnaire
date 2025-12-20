@@ -13,6 +13,7 @@ public static class ApplicationConfiguration
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IQuestionnaireService, QuestionnaireService>();
         services.AddScoped<ISubmissionService, SubmissionService>();
+        services.AddScoped<ISubmissionProcessor, SubmissionProcessor>();
   
         return services;
     }

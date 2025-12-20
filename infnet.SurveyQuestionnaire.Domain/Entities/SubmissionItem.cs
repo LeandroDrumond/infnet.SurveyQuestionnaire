@@ -34,10 +34,10 @@ public sealed class SubmissionItem : Entity
     {
     }
 
-    private SubmissionItem(Guid questionId, string answer, Guid? selectedOptionId) : base()
+    private SubmissionItem(Guid questionId, string? answer, Guid? selectedOptionId) : base()
     {
         QuestionId = questionId;
-        Answer = ValidateAndTrimAnswer(answer);
+        Answer = ValidateAndTrimAnswer(answer, selectedOptionId);
         SelectedOptionId = selectedOptionId;
     }
 
@@ -47,7 +47,7 @@ public sealed class SubmissionItem : Entity
     /// <param name="questionId">ID da questão</param>
     /// <param name="answer">Resposta em texto</param>
     /// <param name="selectedOptionId">ID da opção selecionada (opcional)</param>
-    internal static SubmissionItem Create(Guid questionId, string answer, Guid? selectedOptionId = null)
+    internal static SubmissionItem Create(Guid questionId, string? answer, Guid? selectedOptionId = null)
     {
         if (questionId == Guid.Empty)
             throw new ArgumentException("Question ID cannot be empty", nameof(questionId));
@@ -55,15 +55,29 @@ public sealed class SubmissionItem : Entity
         return new SubmissionItem(questionId, answer, selectedOptionId);
     }
 
-    private static string ValidateAndTrimAnswer(string answer)
+    private static string ValidateAndTrimAnswer(string? answer, Guid? selectedOptionId)
     {
-     if (string.IsNullOrWhiteSpace(answer))
-        throw new ArgumentException("Answer cannot be empty", nameof(answer));
+        // Se uma opção estiver selecionada, a resposta em texto é opcional. Tratar null/whitespace como string vazia.
+        if (selectedOptionId.HasValue)
+        {
+            if (string.IsNullOrWhiteSpace(answer))
+                return string.Empty;
+
+            var trimmed = answer.Trim();
+            if (trimmed.Length > _answerMaxLength)
+                throw new ArgumentException($"A resposta não pode exceder {_answerMaxLength} caracteres", nameof(answer));
+
+            return trimmed;
+        }
+
+        // Para perguntas abertas (sem opção selecionada), a resposta é obrigatória
+        if (string.IsNullOrWhiteSpace(answer))
+            throw new ArgumentException("A resposta não pode estar vazia", nameof(answer));
 
         var trimmedAnswer = answer.Trim();
 
         if (trimmedAnswer.Length > _answerMaxLength)
-            throw new ArgumentException( $"Answer cannot exceed {_answerMaxLength} characters",nameof(answer));
+            throw new ArgumentException($"A resposta não pode exceder {_answerMaxLength} caracteres", nameof(answer));
 
         return trimmedAnswer;
     }

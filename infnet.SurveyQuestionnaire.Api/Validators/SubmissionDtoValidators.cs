@@ -29,11 +29,16 @@ public class CreateSubmissionRequestDtoValidator : AbstractValidator<CreateSubmi
             .NotEmpty()
             .WithMessage("Question ID is required");
 
-            answer.RuleFor(a => a.Answer)
-            .NotEmpty()
-             .WithMessage("Answer is required")
-             .MaximumLength(5000)
-            .WithMessage("Answer cannot exceed 5000 characters");
+      // ? Answer é obrigatório APENAS se não for múltipla escolha (sem SelectedOptionId)
+      answer.RuleFor(a => a.Answer)
+          .NotEmpty()
+  .When(a => !a.SelectedOptionId.HasValue) // Obrigatório apenas para questões abertas
+         .WithMessage("Answer is required for open-ended questions")
+           .MaximumLength(5000)
+          .WithMessage("Answer cannot exceed 5000 characters");
+
+    // ? SelectedOptionId é obrigatório para questões de múltipla escolha
+     // (validação de lógica de negócio será feita no Service)
       });
     }
 }
@@ -46,13 +51,15 @@ public class SubmissionAnswerDtoValidator : AbstractValidator<SubmissionAnswerDt
     public SubmissionAnswerDtoValidator()
     {
         RuleFor(x => x.QuestionId)
-            .NotEmpty()
+     .NotEmpty()
             .WithMessage("Question ID is required");
 
+        // ? Mesma lógica para SubmissionAnswerDto
         RuleFor(x => x.Answer)
-        .NotEmpty()
-        .WithMessage("Answer is required")
-        .MaximumLength(5000)
-        .WithMessage("Answer cannot exceed 5000 characters");
+         .NotEmpty()
+         .When(x => !x.SelectedOptionId.HasValue)
+ .WithMessage("Answer is required for open-ended questions")
+    .MaximumLength(5000)
+   .WithMessage("Answer cannot exceed 5000 characters");
     }
 }
