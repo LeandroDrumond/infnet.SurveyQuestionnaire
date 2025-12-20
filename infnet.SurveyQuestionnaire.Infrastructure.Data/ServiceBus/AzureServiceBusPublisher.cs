@@ -13,10 +13,10 @@ public class AzureServiceBusPublisher : IServiceBusPublisher, IAsyncDisposable
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public AzureServiceBusPublisher(IConfiguration configuration)
- {
-        var connectionString = configuration["AzureServiceBus:ConnectionString"]?? throw new InvalidOperationException("Azure Service Bus connection string not configured");
+    {
+        var connectionString = configuration["AzureServiceBus"] ?? throw new InvalidOperationException("Azure Service Bus connection string not configured");
 
-   _defaultQueueName = configuration["AzureServiceBus:DefaultQueueName"] ?? "submission-queue";
+        _defaultQueueName = configuration["AzureServiceBus:DefaultQueueName"] ?? "submission-queue";
         _client = new ServiceBusClient(connectionString);
     }
 
@@ -27,67 +27,63 @@ public class AzureServiceBusPublisher : IServiceBusPublisher, IAsyncDisposable
 
         try
         {
-     var messageBody = JsonSerializer.Serialize(message, new JsonSerializerOptions 
-        { 
+      var messageBody = JsonSerializer.Serialize(message, new JsonSerializerOptions 
+       { 
    PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-     });
+ });
 
-       var serviceBusMessage = new ServiceBusMessage(messageBody)
- {
-                ContentType = "application/json",
+            var serviceBusMessage = new ServiceBusMessage(messageBody)
+      {
+        ContentType = "application/json",
        MessageId = Guid.NewGuid().ToString(),
-       Subject = typeof(T).Name
+    Subject = typeof(T).Name
       };
 
-          await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
-        }
-     catch (Exception ex)
-    {
-            throw new InvalidOperationException($"Error publishing message to queue '{queue}': {ex.Message}", ex);
+  await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
       }
+        catch (Exception ex)
+        {
+ throw new InvalidOperationException($"Error publishing message to queue '{queue}': {ex.Message}", ex);
+    }
     }
 
-  private async Task<ServiceBusSender> GetOrCreateSenderAsync(string queueName)
+    private async Task<ServiceBusSender> GetOrCreateSenderAsync(string queueName)
     {
-      
         if (_senders.TryGetValue(queueName, out var existingSender))
        return existingSender;
-       
 
    await _semaphore.WaitAsync();
-  try
+     try
         {
-      
-  if (_senders.TryGetValue(queueName, out var cachedSender))
- {
-         return cachedSender;
+       if (_senders.TryGetValue(queueName, out var cachedSender))
+         {
+           return cachedSender;
             }
 
-    
-            var sender = _client.CreateSender(queueName);
-          _senders[queueName] = sender;
-        return sender;
-        }
+     var sender = _client.CreateSender(queueName);
+            _senders[queueName] = sender;
+     return sender;
+      }
         finally
-        {
-  _semaphore.Release();
+     {
+            _semaphore.Release();
         }
     }
 
     public async ValueTask DisposeAsync()
-    {
-        // Fecha todos os senders
-    foreach (var sender in _senders.Values)
-        {
-            await sender.DisposeAsync();
+  {
+    // Fecha todos os senders
+      foreach (var sender in _senders.Values)
+   {
+     await sender.DisposeAsync();
         }
         _senders.Clear();
 
         // Fecha o client
-        await _client.DisposeAsync();
+      await _client.DisposeAsync();
 
         _semaphore.Dispose();
 
-   GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this);
     }
 }

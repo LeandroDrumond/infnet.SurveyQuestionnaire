@@ -101,20 +101,31 @@ public sealed class Submission : Entity
     }
 
     /// <summary>
+    /// Reseta a submissão para Pending
+    /// </summary>
+    public void ResetToPending()
+    {
+        if (Status == SubmissionStatus.Completed)
+            throw new InvalidSubmissionException("Cannot reset a completed submission");
+
+        Status = SubmissionStatus.Pending;
+                SetUpdatedAt();
+    }
+
+    /// <summary>
     /// Marca a submissão como completada
     /// </summary>
  public void Complete()
-    {
-        if (Status != SubmissionStatus.Processing && Status != SubmissionStatus.Pending)
-            throw new InvalidSubmissionException($"Cannot complete submission with status {Status}");
+ {
+        if (Status != SubmissionStatus.Processing)
+       throw new InvalidSubmissionException($"Cannot complete submission with status {Status}");
 
-      if (_items.Count == 0)
-            throw new InvalidSubmissionException("Cannot complete submission without any answers");
+        if (_items.Count == 0)
+            throw new InvalidSubmissionException("Cannot complete submission without items");
 
     Status = SubmissionStatus.Completed;
-        SetUpdatedAt();
-    }
-
+    SetUpdatedAt();
+ }
     /// <summary>
     /// Marca a submissão como falha
     /// </summary>

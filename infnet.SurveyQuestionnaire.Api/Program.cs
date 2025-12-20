@@ -8,12 +8,12 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddApplicationServices(builder.Configuration,
-            builder.Environment);
+        builder.Services.AddApplicationServices(builder.Configuration,
+        builder.Environment);
 
-        var app = builder.Build();
-            app.UseExceptionHandling();
-            app.UseStaticFiles();
+     var app = builder.Build();
+         app.UseExceptionHandling();
+         app.UseStaticFiles();
 
         if (app.Environment.IsDevelopment())
         {

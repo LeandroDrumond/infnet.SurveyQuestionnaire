@@ -50,40 +50,21 @@ public class UpdateQuestionnaireRequestDtoValidator : AbstractValidator<UpdateQu
 /// </summary>
 public class PublishQuestionnaireRequestDtoValidator : AbstractValidator<PublishQuestionnaireRequestDto>
 {
- public PublishQuestionnaireRequestDtoValidator()
-    {
-        RuleFor(x => x.CollectionStart)
-            .NotEmpty()
-            .WithMessage("Collection start date is required")
-            .Must(BeAValidDate)
-            .WithMessage("Collection start date must be a valid date")
-            .GreaterThanOrEqualTo(DateTime.UtcNow.Date)
-            .WithMessage("Collection start date must be today or in the future");
-
-        RuleFor(x => x.CollectionEnd)
-            .NotEmpty()
-            .WithMessage("Collection end date is required")
-            .Must(BeAValidDate)
-            .WithMessage("Collection end date must be a valid date")
-            .GreaterThan(x => x.CollectionStart)
-            .WithMessage("Collection end date must be after collection start date");
-
-        RuleFor(x => x)
-            .Must(x => (x.CollectionEnd - x.CollectionStart).TotalDays >= 1)
-            .WithMessage("Collection period must be at least 1 day")
-            .When(x => x.CollectionStart != default && x.CollectionEnd != default);
+        public PublishQuestionnaireRequestDtoValidator()
+        {
+             
+               RuleFor(x => x)
+                   .Must(x => (x.CollectionEnd - x.CollectionStart).TotalDays >= 1)
+                   .WithMessage("Collection period must be at least 1 day")
+                   .When(x => x.CollectionStart != default && x.CollectionEnd != default);
 
 
-        RuleFor(x => x)
-         .Must(x => (x.CollectionEnd - x.CollectionStart).TotalDays <= 365)
-         .WithMessage("Collection period cannot exceed 1 year")
-         .When(x => x.CollectionStart != default && x.CollectionEnd != default);
-    }
+               RuleFor(x => x)
+                .Must(x => (x.CollectionEnd - x.CollectionStart).TotalDays <= 365)
+                .WithMessage("Collection period cannot exceed 1 year")
+                .When(x => x.CollectionStart != default && x.CollectionEnd != default);
+        }
 
-    private bool BeAValidDate(DateTime date)
-    {
-        return date != default && date > DateTime.MinValue && date < DateTime.MaxValue;
-    }
 }
 
 /// <summary>

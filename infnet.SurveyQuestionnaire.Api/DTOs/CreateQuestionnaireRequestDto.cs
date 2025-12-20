@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 
 namespace infnet.SurveyQuestionnaire.Api.DTOs;
 
