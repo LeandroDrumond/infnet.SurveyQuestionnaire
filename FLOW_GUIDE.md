@@ -1,52 +1,122 @@
-# ?? Fluxo Completo da API - Guia Passo a Passo
+ï»¿# Fluxo Completo â€” Guia Passo a Passo
 
-Este guia explica o fluxo mínimo de uso da API, desde a criação de usuários até a consulta de respostas, com destaque: em perguntas de múltipla escolha o campo `answer` é opcional — basta `selectedOptionId`.
-
----
-
-## Visão Geral (resumida)
-1. Criar Usuários (Admin + Public)
-2. Criar Questionário (Admin)
-3. Adicionar Questões (Admin)
-4. Publicar Questionário (Admin)
-5. Responder Questionário (Public User)
-6. Consultar Respostas (Admin)
+Guia enxuto e completo para executar o fluxo end-to-end: criar usuÃ¡rios, criar e publicar questionÃ¡rio, adicionar questÃµes, responder e consultar respostas.
 
 ---
 
-## Pontos importantes sobre `answer` e múltipla escolha
-- Para questões de **múltipla escolha** o que importa é `selectedOptionId`. O campo `answer` é opcional e pode ser enviado vazio.
-- Para questões de **texto aberto** (`isMultipleChoice = false`) o campo `answer` é obrigatório.
-- A validação no DTO aceita `answer` vazio quando `selectedOptionId` está presente; a entidade também permite `Answer` vazio nesses casos.
+Resumo dos passos:
+1. Criar usuÃ¡rio Admin â†’ salvar `adminUserId`
+2. Criar usuÃ¡rio Public â†’ salvar `publicUserId`
+3. Criar questionÃ¡rio (Admin) â†’ salvar `questionnaireId`
+4. Adicionar questÃµes (Admin) â†’ salvar `questionId` e `optionId` quando aplicÃ¡vel
+5. Publicar questionÃ¡rio (Admin)
+6. Responder questionÃ¡rio (Public) â†’ salvar `submissionId`
+7. Aguardar processamento (Azure Function)
+8. Consultar submission (detalhada) e listar respostas do questionÃ¡rio
 
 ---
 
-## Exemplo de Submission (múltipla escolha + texto aberto)
+1) Criar usuÃ¡rio Admin
+- Endpoint: `POST /api/users`
+- Body:
+ ```json
+ { "name": "Admin User", "email": "admin@domain.com", "userType": "Administrator" }
+ ```
+- Response:201 Created â†’ copie `id` â†’ variÃ¡vel: `adminUserId`
 
-```json
-{
- "questionnaireId": "c3d4e5f6-g7h8-9012-cdef-123456789012",
- "answers": [
+2) Criar usuÃ¡rio Public
+- Endpoint: `POST /api/users`
+- Body:
+ ```json
+ { "name": "JoÃ£o Silva", "email": "joao@domain.com", "userType": "Public" }
+ ```
+- Response:201 Created â†’ copie `id` â†’ variÃ¡vel: `publicUserId`
+
+3) Criar questionÃ¡rio (Admin)
+- Endpoint: `POST /api/questionnaires`
+- Header: `X-User-Id: {adminUserId}`
+- Body:
+ ```json
+ { "title": "Pesquisa2025", "description": "AvaliaÃ§Ã£o" }
+ ```
+- Response:201 Created â†’ copie `id` â†’ variÃ¡vel: `questionnaireId`
+
+4) Adicionar questÃµes (Admin)
+- Endpoint: `POST /api/questionnaires/{questionnaireId}/questions`
+- Header: `X-User-Id: {adminUserId}`
+- Exemplos:
+ - MÃºltipla escolha:
+ ```json
  {
- "questionId": "d4e5f6g7-h8i9-0123-defg-234567890123",
- "answer": "", // opcional para múltipla escolha
- "selectedOptionId": "e5f6g7h8-i9j0-1234-efgh-345678901234"
- },
- {
- "questionId": "g7h8i9j0-k1l2-3456-ghij-567890123456",
- "answer": "Poderiam melhorar o tempo de resposta no suporte técnico." // obrigatório para texto aberto
+ "text": "Como avalia o atendimento?",
+ "isRequired": true,
+ "isMultipleChoice": true,
+ "options": [ { "text": "Excelente", "order":1 }, { "text": "Bom", "order":2 } ]
  }
+ ```
+ Response:200 OK â†’ copie `questionId` e `optionId` das opÃ§Ãµes (ex.: `option1Id`).
+
+ - Texto aberto (se for necessÃ¡rio):
+ ```json
+ { "text": "O que podemos melhorar?", "isRequired": false, "isMultipleChoice": false }
+ ```
+ Response:200 OK â†’ copie `questionId` para uso em submissions.
+
+Nota: salve `question1Id`, `question2Id`, `option1Id` etc. para usar nas submissÃµes.
+
+5) Publicar questionÃ¡rio (Admin)
+- Endpoint: `POST /api/questionnaires/{questionnaireId}/publish`
+- Header: `X-User-Id: {adminUserId}`
+- Body:
+ ```json
+ { "collectionStart": "2025-01-01T00:00:00Z", "collectionEnd": "2025-12-31T23:59:59Z" }
+ ```
+- Response:200 OK â†’ `status` passa para `Published`.
+
+6) Criar submission (Public)
+- Endpoint: `POST /api/submissions`
+- Header: `X-User-Id: {publicUserId}`
+- Regras importantes:
+ - Para questÃµes de mÃºltipla escolha: `selectedOptionId` Ã© obrigatÃ³rio; o campo `answer` Ã© opcional (pode ser vazio).
+ - Para perguntas abertas: `answer` Ã© obrigatÃ³rio e `selectedOptionId` deve ser omitido ou nulo.
+- Exemplo:
+ ```json
+ {
+ "questionnaireId": "{questionnaireId}",
+ "answers": [
+ { "questionId": "{question1Id}", "answer": "", "selectedOptionId": "{option1Id}" },
+ { "questionId": "{question2Id}", "answer": "SugestÃ£o de melhoria." }
  ]
-}
-```
+ }
+ ```
+- Response:202 Accepted â†’ copie `submissionId` (status inicial `Pending`).
+
+7) Rodar/aguardar Azure Function (processamento)
+- A API publica mensagem na fila; a Function consome e grava `SubmissionItems` e atualiza `Submission` para `Completed`.
+- Se estiver desenvolvendo localmente, execute a Function:
+ ```bash
+ cd infnet.SurveyQuestionnaire.Functions
+ func start
+ ```
+- Aguarde alguns segundos e verifique o status da submission.
+
+8) Consultar submission (detalhada)
+- Endpoint: `GET /api/submissions/{submissionId}/items`
+- Header: `X-User-Id: {publicUserId}` (ou `adminUserId` dependendo da regra de acesso)
+- Response:200 OK â†’ `items` com cada resposta processada.
+
+9) Listar todas as submissions de um questionÃ¡rio (Admin)
+- Endpoint: `GET /api/submissions/questionnaire/{questionnaireId}`
+- Header: `X-User-Id: {adminUserId}`
+- Response: lista de submissions (resumos).
+
+10) Contar submissions de um questionÃ¡rio (Admin)
+- Endpoint: `GET /api/submissions/questionnaire/{questionnaireId}/count`
+- Header: `X-User-Id: {adminUserId}`
+- Response: `{ "count": <number> }`
 
 ---
 
-## Recomendações rápidas
-- Ao criar a collection/postman, salve `adminUserId`, `publicUserId`, `questionnaireId`, `question1Id`, `option1Id`, `submissionId` como variáveis de ambiente.
-- Sempre rode a Azure Function localmente (ou tenha um consumer) para que as submissions em `Pending` sejam processadas.
-- Não use imagens em docs se não for subir os arquivos; prefira texto e exemplos JSON.
-
----
-
-Pronto — `answer` deixou de ser obrigatório para questões de múltipla escolha. Verifique os exemplos e teste criando uma submission com `selectedOptionId` e `answer` vazio.
+Boas prÃ¡ticas e notas rÃ¡pidas:
+- Use um environment no Postman para guardar as variÃ¡veis: `baseUrl`, `adminUserId`, `publicUserId`, `questionnaireId`, `question1Id`, `option1Id`, `submissionId`.
+- Para testes locais, mantenha a Function rodando para processar mensagens em tempo real.
